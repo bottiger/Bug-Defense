@@ -99,8 +99,8 @@ public class TowerDefenseView_snake extends TileView {
 
 		@Override
 		public void handleMessage(Message msg) {
-			TowerDefenseView.this.update();
-			TowerDefenseView.this.invalidate();
+			//TowerDefenseView.this.update();
+			//TowerDefenseView.this.invalidate();
 		}
 
 		public void sleep(long delayMillis) {
@@ -152,12 +152,12 @@ public class TowerDefenseView_snake extends TileView {
 		
 		this.r = new Route(creepStart, creepEnd, checkPoints);
 		// TODO
-		GenericCreep testMonster = new GenericCreep(10, 100, 10, creepStart, creepEnd, checkPoints);
+		GenericCreep testMonster = new GenericCreep(10, 100, 10, r);
 		creepList.add(testMonster);
 		
 		Coordinate[] tc = {new Coordinate(12, 12), new Coordinate(12, 13), new Coordinate(13, 12), new Coordinate(13, 13)};
-		Tower testTower = new GenericTower(tc, 10, 10, 10);
-		towerList.add(testTower);
+		//Tower testTower = new GenericTower(tc, 10, 10, 10);
+		///towerList.add(testTower);
 
 		// For now we're just going to load up a short default eastbound snake
 		// that's just turned north
@@ -352,8 +352,8 @@ public class TowerDefenseView_snake extends TileView {
 			str = res.getText(R.string.mode_ready);
 		}
 		if (newMode == LOSE) {
-			str = res.getString(R.string.mode_lose_prefix) + mScore
-					+ res.getString(R.string.mode_lose_suffix);
+			//str = res.getString(R.string.mode_lose_prefix) + mScore
+			//		+ res.getString(R.string.mode_lose_suffix);
 		}
 
 		mStatusText.setText(str);
@@ -421,18 +421,18 @@ public class TowerDefenseView_snake extends TileView {
 
 	private void updateTowers() {
 		
-		for (Tower t : towerList) {
-			for (Coordinate c : t.getPosition()) {
-				setTile(YELLOW_STAR, c.x, c.y);
-			}
-	    }
+//		for (Tower t : towerList) {
+//			for (Coordinate c : t.getPosition()) {
+//				setTile(YELLOW_STAR, c.x, c.y);
+//			}
+//	    }
 		
 	}
 
 	private void updateCreeps() {
 
 	    for (Creep c : creepList) {
-	    	if (c.isEndPos()) 
+	    	if (c.isLastPos()) 
 	    	{
 	    		creepList.remove(c);
 	    	}

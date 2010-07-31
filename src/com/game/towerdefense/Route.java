@@ -4,46 +4,61 @@ import java.util.ArrayList;
 
 public class Route {
 
-	private int currentPos = 0;
+	private Coordinate start;
+	private Coordinate end;
+	
+	private ArrayList<Coordinate> checkPoints = new ArrayList<Coordinate>();
 
 	private ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+	private ArrayList<Integer> pixelPath = new ArrayList<Integer>();
 	//private ArrayList<Coordinate> checkPoints;
 
 	public Route(Coordinate startPos, Coordinate endPos,
 			ArrayList<Coordinate> checkPoints) {
+		this.checkPoints = checkPoints;
+		this.start = startPos;
+		this.end = endPos;
+		
 		calculateRoute(startPos, endPos, checkPoints);
 	}
 	
 	public Route(Coordinate startPos, Coordinate endPos) {
-		calculateRoute(startPos, endPos, new ArrayList<Coordinate>());
+		this.start = startPos;
+		this.end = endPos;
+		
+		//calculateRoute(startPos, endPos, checkpoints);
 	}
-
-	public void move() {
-		currentPos++;
+	
+	public Coordinate getPosition(int index) {
+		return path.get(index);
 	}
-
-	public Coordinate getCurrentPos() {
-		return path.get(currentPos);
-	}
-
-	public Coordinate getNextPos() {
-		if (path.get(currentPos).equals(getLastPos())) {
-			return path.get(currentPos);
-		} else {
-			return path.get(currentPos + 1);
-		}
+	
+	public Coordinate getNextPosition(int index) {
+		return path.get(index+1);
 	}
 
 	public Coordinate getLastPos() {
 		return path.get(path.size() - 1);
 	}
-
-	public boolean isEndPos() {
-		return path.size() - 1 == currentPos;
-	}
 	
 	public ArrayList<Coordinate> getPath() {
 		return path;
+	}
+	
+	public ArrayList<Coordinate> getCheckPoints() {
+		return checkPoints;
+	}
+	
+	public Coordinate getStart() {
+		return start;
+	}
+	
+	public Coordinate getEnd() {
+		return end;
+	}
+	
+	public int length() {
+		return path.size();
 	}
 
 	private void calculateRoute(Coordinate startPos, Coordinate endPos,

@@ -4,7 +4,7 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:background="@drawable/background">
 
-	<com.game.towerdefense.TowerView
+	<com.game.towerdefense.TowerDefenseView
 		android:id="@+id/tower_defense" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" tileSize="24" />
 

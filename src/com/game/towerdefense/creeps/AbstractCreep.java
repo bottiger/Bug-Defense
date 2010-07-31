@@ -2,36 +2,37 @@ package com.game.towerdefense.creeps;
 
 import java.util.ArrayList;
 
+import android.graphics.drawable.Drawable;
+
 import com.game.towerdefense.*;
 
 public abstract class AbstractCreep implements Creep {
-
+	
 	private final int iniSpeed;
 	private final int iniHealth;
 	private final int iniArmour;
+	private final int lastPositionIndex;
 
 	private int health;
 	private int speed;
 	private Route route;
+	
+	private int positionIndex = 0;
 
-	public AbstractCreep(int speed, int health, int armour, Coordinate start,
-			Coordinate goal, ArrayList<Coordinate> checkPoints) {
+	public AbstractCreep(int speed, int health, int armour, Route route) {
 		this.iniSpeed = speed;
 		this.iniHealth = health;
 		this.iniArmour = armour;
 
 		this.speed = speed;
 		this.health = health;
-		this.route = new Route(start, goal, checkPoints);
+		this.route = route;
+		this.lastPositionIndex = route.length()-1;
 
 	}
 
-	public void move() {
-		route.move();
-	}
-
-	public boolean isEndPos() {
-		return route.isEndPos();
+	public boolean isLastPos() {
+		return positionIndex == lastPositionIndex;
 	}
 
 	public Route getRoute() {
@@ -40,10 +41,6 @@ public abstract class AbstractCreep implements Creep {
 
 	public void setRoute(Route route) {
 		this.route = route;
-	}
-
-	public Coordinate getPosition() {
-		return route.getCurrentPos();
 	}
 
 	public int getArmour() {
@@ -61,17 +58,43 @@ public abstract class AbstractCreep implements Creep {
 	public int getHealth() {
 		return health;
 	}
+	
+	public int getHealthPercentage() {
+		return (health * 100) / iniHealth;
+	}
 
 	public void setHealth(int healt) {
 		this.health = healt;
 	}
+	
+	public void damage(int damage, int penetration) {
+		health -= damage;
+	}
 
 	public int x() {
-		return route.getCurrentPos().x;
+		return route.getPosition(positionIndex).x;
 	}
 
 	public int y() {
-		return route.getCurrentPos().y;
+		return route.getPosition(positionIndex).y;
 	}
+	
+	public Coordinate getPosition() {
+		return route.getPosition(positionIndex);
+	}
+	
+	public Coordinate getNextPos() {
+		if (isLastPos()) {
+			return getPosition();
+		} else {
+			return route.getPosition(positionIndex+1);
+		}
+	}
+	
+	public void move() {
+		positionIndex++;
+	}
+	
+	public abstract int getImageID();
 
 }

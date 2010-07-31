@@ -108,7 +108,7 @@ public class TowerDefense extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         // tell system to use the layout defined in our XML file
-        setContentView(R.layout.main);
+        setContentView(R.layout.tower_defense);
 
         // get handles to the TowerView from XML, and its LunarThread
         mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
@@ -119,7 +119,8 @@ public class TowerDefense extends Activity {
 
         if (savedInstanceState == null) {
             // we were just launched: set up a new game
-            mTowerDefenseThread.setState(TowerDefenseThread.STATE_READY);
+            //mTowerDefenseThread.setState(TowerDefenseThread.STATE_READY);
+            mTowerDefenseThread.setState(TowerDefenseThread.STATE_RUNNING);
             Log.w(this.getClass().getName(), "SIS is null");
         } else {
             // we are being restored: resume a previous game

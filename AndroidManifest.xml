@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.game.towerdefense">
-    <application android:label="Tower Defense for Android">
+    package="com.game.towerdefense"
+    android:versionName="0.1" android:versionCode="1">
+    <uses-sdk android:minSdkVersion="4" />
+    <application android:label="Tower Defense for Android" android:debuggable="true" >
       <activity android:name="TowerDefense"
         android:screenOrientation="portrait"
         android:configChanges="keyboardHidden|orientation">

@@ -1,11 +1,34 @@
 package com.game.towerdefense.towers;
 
+
+
+import android.graphics.drawable.Drawable;
+
 import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.R;
 
 public class GenericTower extends AbstractTower {
 	
-	public GenericTower(Coordinate[] position, int damage, int range, int penetration) {
-		super(position, damage, range, penetration);
+	private Drawable image;
+	
+	public GenericTower(Coordinate position) {
+		super(position, 7, 20, 100, 10);
+	}
+	
+	@Override
+	public int getImageID() {
+		return R.drawable.creeps;
+	}
+
+	@Override
+	public Drawable getImage() {
+		return image;
+	}
+
+	@Override
+	public void setImage(Drawable img) {
+		image = img;
+		
 	}
 
 }
