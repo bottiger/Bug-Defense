@@ -4,14 +4,14 @@ package com.game.towerdefense.towers;
 
 import android.graphics.drawable.Drawable;
 
-import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.Tile;
 import com.game.towerdefense.R;
 
 public class GenericTower extends AbstractTower {
 	
 	private Drawable image;
 	
-	public GenericTower(Coordinate position) {
+	public GenericTower(Tile position) {
 		super(position, 7, 20, 100, 10);
 	}
 	

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import android.graphics.drawable.Drawable;
 
-import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.Tile;
 import com.game.towerdefense.R;
 import com.game.towerdefense.Route;
 

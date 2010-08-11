@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.SurfaceView;
 import android.view.View;
 
@@ -40,12 +41,10 @@ public class TileView extends SurfaceView {
      * dimensions. X/Y Tile Counts are the number of tiles that will be drawn.
      */
 
-	protected static int mTileSize;
-    protected static int mXTileSize;
-    protected static int mYTileSize;
+	protected static float mTileSize;
 
-    protected static int mXTileCount;
-    protected static int mYTileCount;
+    protected static int mXTileCount = 320;
+    protected static int mYTileCount = 480;
 
     private static int mXOffset;
     private static int mYOffset;
@@ -70,7 +69,7 @@ public class TileView extends SurfaceView {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TileView);
 
-        mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
+        ////mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
         
         a.recycle();
     }
@@ -80,9 +79,18 @@ public class TileView extends SurfaceView {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TileView);
 
-        mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
+        ////mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
+        
+        //mTileSize = tileSize(this.getWidth(), this.getHeight());
         
         a.recycle();
+    }
+    
+    public void setTileSize()
+    {
+    	int width = this.getWidth();
+    	int height = this.getHeight();
+    	mTileSize = this.tileSize(width, height);
     }
 
     
@@ -100,22 +108,21 @@ public class TileView extends SurfaceView {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mXTileCount = (int) Math.floor(w / mTileSize);
-        mYTileCount = (int) Math.floor(h / mTileSize);
-
-        mXOffset = ((w - (mTileSize * mXTileCount)) / 2);
-        mYOffset = ((h - (mTileSize * mYTileCount)) / 2);
-
-        mTileGrid = new int[mXTileCount][mYTileCount];
-        clearTiles();
-    	
-//    	mXTileCount = 320;
-//    	mYTileCount = 480;
-//    	
-//    	mTileGrid = new int[mXTileCount][mYTileCount];
-//    	
-//    	mXTileCount = (int) Math.floor(w / mTileSize);
+//        mXTileCount = (int) Math.floor(w / mTileSize);
 //        mYTileCount = (int) Math.floor(h / mTileSize);
+//
+//        mXOffset = ((w - (mTileSize * mXTileCount)) / 2);
+//        mYOffset = ((h - (mTileSize * mYTileCount)) / 2);
+//
+//        mTileGrid = new int[mXTileCount][mYTileCount];
+//        clearTiles();
+    	
+    	mTileGrid = new int[mXTileCount][mYTileCount];
+        
+        mTileSize = tileSize(w,h);
+        
+        mXOffset = (int) ((w - (mTileSize * mXTileCount)) / 2);
+        mYOffset = (int) ((h - (mTileSize * mYTileCount)) / 2);
     	  
     	clearTiles();
     }
@@ -128,9 +135,9 @@ public class TileView extends SurfaceView {
      * @param tile
      */
     public void loadTile(int key, Drawable tile) {
-        Bitmap bitmap = Bitmap.createBitmap(mTileSize, mTileSize, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap((int)mTileSize, (int)mTileSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        tile.setBounds(0, 0, mTileSize, mTileSize);
+        tile.setBounds(0, 0, (int)mTileSize, (int)mTileSize);
         tile.draw(canvas);
         
         mTileArray[key] = bitmap;
@@ -176,6 +183,17 @@ public class TileView extends SurfaceView {
             }
         }
 
+    }
+    
+    private float tileSize(int screenWidth, int screenHeight)
+    {
+    	//int XTileSize = (int) Math.floor(screenWidth / mXTileCount);
+        //int YTileSize = (int) Math.floor(screenHeight / mYTileCount);
+        
+    	float XTileSize = (float) screenWidth  / (float) mXTileCount;
+        float YTileSize = (float) screenHeight / (float) mYTileCount;
+        
+        return (XTileSize < YTileSize) ? XTileSize : YTileSize;
     }
 
 }

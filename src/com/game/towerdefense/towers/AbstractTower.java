@@ -2,12 +2,13 @@ package com.game.towerdefense.towers;
 
 import java.util.ArrayList;
 
-import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.Tile;
 import com.game.towerdefense.creeps.Creep;
 
 public abstract class AbstractTower implements Tower {
 
-	private final Coordinate position;
+	private final int IMAGE_SIZE = 24;
+	private final Tile position;
 
 	private int damage;
 	private int range;
@@ -18,7 +19,7 @@ public abstract class AbstractTower implements Tower {
 
 	private Creep lastTarget;
 
-	public AbstractTower(Coordinate position, int damage, int delay, int range,
+	public AbstractTower(Tile position, int damage, int delay, int range,
 			int penetration) {
 		this.position = position;
 		this.damage = damage;
@@ -85,8 +86,24 @@ public abstract class AbstractTower implements Tower {
 		this.penetration = penetration;
 	}
 
-	public Coordinate getPosition() {
+	public Tile getPosition() {
 		return position;
+	}
+	
+	public int getLowerBound() {
+		return this.position.getPixel().y + IMAGE_SIZE/2;
+	}
+	
+	public int getUpperBound() {
+		return this.position.getPixel().y - IMAGE_SIZE/2;
+	}
+	
+	public int getLeftBound() {
+		return this.position.getPixel().x - IMAGE_SIZE/2;
+	}
+	
+	public int getRightBound() {
+		return this.position.getPixel().x + IMAGE_SIZE/2;
 	}
 
 	private boolean cool() {

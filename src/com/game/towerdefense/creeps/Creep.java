@@ -2,7 +2,7 @@ package com.game.towerdefense.creeps;
 
 import android.graphics.drawable.Drawable;
 
-import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.Tile;
 import com.game.towerdefense.Route;
 
 public interface Creep {
@@ -21,7 +21,15 @@ public interface Creep {
 	
 	public void damage(int damage, int penetration);
 	
-	public Coordinate getPosition();
+	public Tile getPosition();
+	
+	public int getLowerBound();
+	
+	public int getUpperBound();
+	
+	public int getLeftBound();
+	
+	public int getRightBound();
 	
 	public Route getRoute();
 

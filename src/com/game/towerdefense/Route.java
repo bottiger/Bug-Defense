@@ -4,56 +4,59 @@ import java.util.ArrayList;
 
 public class Route {
 
-	private Coordinate start;
-	private Coordinate end;
+	private Tile start;
+	private Tile end;
+	private TowerDefenseView view;
 	
-	private ArrayList<Coordinate> checkPoints = new ArrayList<Coordinate>();
+	private ArrayList<Tile> checkPoints = new ArrayList<Tile>();
 
-	private ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+	private ArrayList<Tile> path = new ArrayList<Tile>();
 	private ArrayList<Integer> pixelPath = new ArrayList<Integer>();
-	//private ArrayList<Coordinate> checkPoints;
+	//private ArrayList<Tile> checkPoints;
 
-	public Route(Coordinate startPos, Coordinate endPos,
-			ArrayList<Coordinate> checkPoints) {
+	public Route(Tile startPos, Tile endPos, TowerDefenseView view,
+			ArrayList<Tile> checkPoints) {
 		this.checkPoints = checkPoints;
 		this.start = startPos;
 		this.end = endPos;
+		this.view = view;
 		
 		calculateRoute(startPos, endPos, checkPoints);
 	}
 	
-	public Route(Coordinate startPos, Coordinate endPos) {
+	public Route(Tile startPos, Tile endPos, TowerDefenseView view) {
 		this.start = startPos;
 		this.end = endPos;
+		this.view = view;
 		
 		//calculateRoute(startPos, endPos, checkpoints);
 	}
 	
-	public Coordinate getPosition(int index) {
+	public Tile getPosition(int index) {
 		return path.get(index);
 	}
 	
-	public Coordinate getNextPosition(int index) {
+	public Tile getNextPosition(int index) {
 		return path.get(index+1);
 	}
 
-	public Coordinate getLastPos() {
+	public Tile getLastPos() {
 		return path.get(path.size() - 1);
 	}
 	
-	public ArrayList<Coordinate> getPath() {
+	public ArrayList<Tile> getPath() {
 		return path;
 	}
 	
-	public ArrayList<Coordinate> getCheckPoints() {
+	public ArrayList<Tile> getCheckPoints() {
 		return checkPoints;
 	}
 	
-	public Coordinate getStart() {
+	public Tile getStart() {
 		return start;
 	}
 	
-	public Coordinate getEnd() {
+	public Tile getEnd() {
 		return end;
 	}
 	
@@ -61,24 +64,24 @@ public class Route {
 		return path.size();
 	}
 
-	private void calculateRoute(Coordinate startPos, Coordinate endPos,
-			ArrayList<Coordinate> checkPoints) {
+	private void calculateRoute(Tile startPos, Tile endPos,
+			ArrayList<Tile> checkPoints) {
 		
-		Coordinate start = null;
-		Coordinate end = null;
+		Tile start = null;
+		Tile end = null;
 		
 		checkPoints.add(endPos);
 
-		for (Coordinate cp : checkPoints) {
+		for (Tile cp : checkPoints) {
 
 			start = (cp == checkPoints.get(0)) ? startPos : end;
 			end   = cp;
 			
 			for (int i = start.x; i != end.x; i = (int) (i + Math.signum(end.x - start.x)))
-				this.path.add(new Coordinate(i, start.y));
+				this.path.add(new Tile(i, start.y, view));
 
 			for (int j = start.y; j != end.y; j = (int) (j + Math.signum(end.y - start.y)))
-				this.path.add(new Coordinate(end.x, j));
+				this.path.add(new Tile(end.x, j, view));
 		}
 	}
 

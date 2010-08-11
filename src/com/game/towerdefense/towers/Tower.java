@@ -3,7 +3,7 @@ package com.game.towerdefense.towers;
 import java.util.ArrayList;
 
 import android.graphics.drawable.Drawable;
-import com.game.towerdefense.Coordinate;
+import com.game.towerdefense.Tile;
 import com.game.towerdefense.creeps.Creep;
 
 public interface Tower {
@@ -22,7 +22,15 @@ public interface Tower {
 	
 	public boolean inRange(int x, int y);
 
-	public Coordinate getPosition();
+	public Tile getPosition();
+	
+	public int getLowerBound();
+	
+	public int getUpperBound();
+	
+	public int getLeftBound();
+	
+	public int getRightBound();
 	
 	public void shoot(ArrayList<Creep> creep);
 

@@ -8,6 +8,8 @@ import com.game.towerdefense.*;
 
 public abstract class AbstractCreep implements Creep {
 	
+	private final int IMAGE_SIZE = 24;
+	
 	private final int iniSpeed;
 	private final int iniHealth;
 	private final int iniArmour;
@@ -72,18 +74,34 @@ public abstract class AbstractCreep implements Creep {
 	}
 
 	public int x() {
-		return route.getPosition(positionIndex).x;
+		return route.getPosition(positionIndex).getPixel().x;
 	}
 
 	public int y() {
-		return route.getPosition(positionIndex).y;
+		return route.getPosition(positionIndex).getPixel().y;
 	}
 	
-	public Coordinate getPosition() {
+	public Tile getPosition() {
 		return route.getPosition(positionIndex);
 	}
 	
-	public Coordinate getNextPos() {
+	public int getLowerBound() {
+		return this.y() + IMAGE_SIZE/2;
+	}
+	
+	public int getUpperBound() {
+		return this.y() - IMAGE_SIZE/2;
+	}
+	
+	public int getLeftBound() {
+		return this.x() - IMAGE_SIZE/2;
+	}
+	
+	public int getRightBound() {
+		return this.x() + IMAGE_SIZE/2;
+	}
+	
+	public Tile getNextPos() {
 		if (isLastPos()) {
 			return getPosition();
 		} else {

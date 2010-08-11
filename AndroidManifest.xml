@@ -6,6 +6,7 @@
     <uses-sdk android:minSdkVersion="4" />
     <application android:label="Tower Defense for Android" android:debuggable="true" >
       <activity android:name="TowerDefense"
+      	android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:screenOrientation="portrait"
         android:configChanges="keyboardHidden|orientation">
             <intent-filter>

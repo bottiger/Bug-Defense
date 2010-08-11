@@ -180,7 +180,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		/**
 		 * How long should our application sleep between the iterations
 		 */
-		public long mMoveDelay = 250;
+		public long mMoveDelay = 20;
 		
 		/**
 		 * Lives
@@ -265,18 +265,22 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
+				
+				TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
+				//int h = mTowerDefenseView.getWidth();
+				
 				// First set the game for Medium difficulty
-				ArrayList<Coordinate> checkPoints = new ArrayList<Coordinate>();
-				checkPoints.add(new Coordinate(100, 40));
-				checkPoints.add(new Coordinate(100, 350));
-				checkPoints.add(new Coordinate(180, 350));
-				checkPoints.add(new Coordinate(180, 200));
-				checkPoints.add(new Coordinate(300, 200));
+				ArrayList<Tile> checkPoints = new ArrayList<Tile>();
+				checkPoints.add(new Tile(100, 40, mTowerDefenseView));
+				checkPoints.add(new Tile(100, 350, mTowerDefenseView));
+				checkPoints.add(new Tile(180, 350, mTowerDefenseView));
+				checkPoints.add(new Tile(180, 200, mTowerDefenseView));
+				checkPoints.add(new Tile(300, 200, mTowerDefenseView));
 
-				Coordinate creepStart = new Coordinate(0, 40);
-				Coordinate creepEnd = new Coordinate(300, 400);
+				Tile creepStart = new Tile(0, 40, mTowerDefenseView);
+				Tile creepEnd = new Tile(300, 400, mTowerDefenseView);
 
-				route = new Route(creepStart, creepEnd, checkPoints);
+				route = new Route(creepStart, creepEnd, mTowerDefenseView, checkPoints);
 
 				GenericCreep testMonster = new GenericCreep(10, 100, 10, route);
 				GenericCreep testMonster2 = new GenericCreep(10, 100, 10, route);
@@ -290,12 +294,8 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 				mPendingCreepList.add(testMonster2);
 				mPendingCreepList.add(testMonster3);
 
-				Coordinate[] tc = { new Coordinate(12, 12),
-						new Coordinate(12, 13), new Coordinate(13, 12),
-						new Coordinate(13, 13) };
-
-				Tower testTower = new GenericTower(new Coordinate(150, 150));
-				Tower testTower2 = new GenericTower(new Coordinate(225, 225));
+				Tower testTower = new GenericTower(new Tile(150, 150, mTowerDefenseView));
+				Tower testTower2 = new GenericTower(new Tile(225, 225, mTowerDefenseView));
 				
 				testTower.setImage(mTowerImage);
 				testTower2.setImage(mTowerImage);
@@ -328,28 +328,6 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 				// TODO restore game. See LunarView.java
 			}
 		}
-
-		// @Override
-		// public void run() {
-		// while (mRun) {
-		// Canvas c = null;
-		// try {
-		// c = mSurfaceHolder.lockCanvas(null);
-		// synchronized (mSurfaceHolder) {
-		// if (mMode == STATE_RUNNING)
-		// updateGameState();
-		// doDraw(c);
-		// }
-		// } finally {
-		// // do this in a finally so that if an exception is thrown
-		// // during the above, we don't leave the Surface in an
-		// // inconsistent state
-		// if (c != null) {
-		// mSurfaceHolder.unlockCanvasAndPost(c);
-		// }
-		// }
-		// }
-		// }
 
 		@Override
 		public void run() {
@@ -566,6 +544,10 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 * Canvas.
 		 */
 		private void doDraw(Canvas canvas) {
+			
+			TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
+			mTowerDefenseView.setTileSize();
+			
 			// Draw the background image. Operations on the Canvas accumulate
 			// so this is like clearing the screen.
 			canvas.drawBitmap(mBackgroundImage, 0, 0, null);
@@ -577,39 +559,47 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			canvas.drawText("max FPS: " + mMaxFPS, 200, 80, mTextColor);
 
 			// Draw path
-			Coordinate startPoint = null;
-			Coordinate endPoint = null;
+			Tile startPoint = null;
+			Tile endPoint = null;
 
-			Coordinate globalStartPoint = route.getStart();
-			Coordinate globalEndPoint = route.getEnd();
+			Tile globalStartPoint = route.getStart();
+			Tile globalEndPoint = route.getEnd();
 
-			ArrayList<Coordinate> t = route.getCheckPoints();
+			ArrayList<Tile> t = route.getCheckPoints();
 
-			for (Coordinate c : t) {
+			for (Tile c : t) {
 				startPoint = c;
 				if (endPoint != null) {
 					// Draw the route
-					canvas.drawLine(startPoint.x, startPoint.y, endPoint.x,
-							endPoint.y, mLinePaint);
+					int startX = startPoint.getPixel().x;
+					int startY = startPoint.getPixel().y;
+					
+					canvas.drawLine(startPoint.getPixel().x, startPoint.getPixel().y, endPoint.getPixel().x,
+							endPoint.getPixel().y, mLinePaint);
 				} else {
-					canvas.drawLine(globalStartPoint.x, globalStartPoint.y,
-							startPoint.x, startPoint.y, mLinePaint);
+					canvas.drawLine(globalStartPoint.getPixel().x, globalStartPoint.getPixel().y,
+							startPoint.getPixel().x, startPoint.getPixel().y, mLinePaint);
 				}
 				endPoint = c;
 			}
 
-			canvas.drawLine(endPoint.x, endPoint.y, globalEndPoint.x,
-					globalEndPoint.y, mLinePaint);
+			canvas.drawLine(endPoint.getPixel().x, endPoint.getPixel().y, globalEndPoint.getPixel().x,
+					globalEndPoint.getPixel().y, mLinePaint);
 
 			// Draw creeos
 			// mCreepImage.setBounds(40, 40, 40 + 24, 40 + 24);
 			// mCreepImage.draw(canvas);
 
 			for (Creep creep : mCreepList) {
-				Coordinate pos = creep.getPosition();
+				Tile pos = creep.getPosition();
 				Drawable creepImg = creep.getImage();
+				
+				int leftBound = creep.getLeftBound();
+				int upperBound = creep.getUpperBound();
+				int rightBound = creep.getRightBound();
+				int lowerBound = creep.getLowerBound();
 
-				creepImg.setBounds(pos.x -12, pos.y -12, pos.x +12, pos.y +12); // l,
+				creepImg.setBounds(leftBound, upperBound, rightBound, lowerBound); // l,
 																			// t
 																			// ,
 																			// r
@@ -626,23 +616,31 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 						- CREEP_HEALTH_BAR_HEIGHT;
 
 				// red health bar
-				mScratchRect.set(pos.x -12, pos.y - CREEP_HEALTH_BAR_HOVER_HEIGHT -12,
-						pos.x + healthLeft -12, pos.y - healthBarBottom -12); // l t r b
+				
+				int barUpperBound = upperBound - CREEP_HEALTH_BAR_HOVER_HEIGHT;
+				int barLowerBound = upperBound - healthBarBottom;
+				mScratchRect.set(leftBound, barUpperBound,
+						leftBound + healthLeft, barLowerBound); // l t r b
 				canvas.drawRect(mScratchRect, mHealthLeftColor);
 
 				// black damage bar
-				mScratchRect.set(pos.x + healthLeft -12, pos.y
-						- CREEP_HEALTH_BAR_HOVER_HEIGHT -12, pos.x
-						+ CREEP_HEALTH_BAR -12, pos.y - healthBarBottom -12); // l t r b
+				mScratchRect.set(leftBound + healthLeft, barUpperBound, 
+						leftBound
+						+ CREEP_HEALTH_BAR, barLowerBound); // l t r b
 				canvas.drawRect(mScratchRect, mHealthLostColor);
 			}
 
 			// Draw towers
 			for (Tower tower : mTowerList) {
-				Coordinate pos = tower.getPosition();
+				Tile pos = tower.getPosition();
 				Drawable creepImg = tower.getImage();
+				
+				int leftBound =  tower.getLeftBound();
+				int upperBound = tower.getUpperBound();
+				int rightBound = tower.getRightBound();
+				int lowerBound = tower.getLowerBound();
 
-				creepImg.setBounds(pos.x, pos.y, pos.x + 24, pos.y + 24); // l,
+				creepImg.setBounds(leftBound, upperBound, rightBound, lowerBound); // l,
 																			// t
 																			// ,
 																			// r
