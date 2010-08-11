@@ -124,6 +124,7 @@ public class TowerDefense extends Activity {
             Log.w(this.getClass().getName(), "SIS is null");
         } else {
             // we are being restored: resume a previous game
+        	mTowerDefenseThread.setState(TowerDefenseThread.STATE_RUNNING);
             mTowerDefenseThread.restoreState(savedInstanceState);
             Log.w(this.getClass().getName(), "SIS is nonnull");
         }

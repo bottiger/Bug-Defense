@@ -37,7 +37,8 @@ import android.widget.TextView;
  * ship, and does an invalidate() to prompt another draw() as soon as possible
  * by the system.
  */
-class TowerDefenseView extends SurfaceView implements SurfaceHolder.Callback {
+class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
+//class TowerDefenseView extends SurfaceView implements SurfaceHolder.Callback {
 
 	class TowerDefenseThread extends Thread {
 		/*
@@ -373,7 +374,9 @@ class TowerDefenseView extends SurfaceView implements SurfaceHolder.Callback {
 				synchronized (mSurfaceHolder) {
 					if (mMode == STATE_RUNNING)
 						updateGameState();
-					doDraw(c);
+					if (c != null) { // prevent crash on exit
+						doDraw(c);
+					}
 				}
 			} finally {
 				// do this in a finally so that if an exception is thrown

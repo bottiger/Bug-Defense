@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.SurfaceView;
 import android.view.View;
 
 
@@ -31,7 +32,7 @@ import android.view.View;
  * drawables.
  * 
  */
-public class TileView extends View {
+public class TileView extends SurfaceView {
 
     /**
      * Parameters controlling the size of the tiles and their range within view.
@@ -39,7 +40,9 @@ public class TileView extends View {
      * dimensions. X/Y Tile Counts are the number of tiles that will be drawn.
      */
 
-    protected static int mTileSize;
+	protected static int mTileSize;
+    protected static int mXTileSize;
+    protected static int mYTileSize;
 
     protected static int mXTileCount;
     protected static int mYTileCount;
@@ -105,6 +108,16 @@ public class TileView extends View {
 
         mTileGrid = new int[mXTileCount][mYTileCount];
         clearTiles();
+    	
+//    	mXTileCount = 320;
+//    	mYTileCount = 480;
+//    	
+//    	mTileGrid = new int[mXTileCount][mYTileCount];
+//    	
+//    	mXTileCount = (int) Math.floor(w / mTileSize);
+//        mYTileCount = (int) Math.floor(h / mTileSize);
+    	  
+    	clearTiles();
     }
 
     /**
