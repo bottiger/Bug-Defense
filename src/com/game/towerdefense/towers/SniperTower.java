@@ -7,13 +7,13 @@ import android.graphics.drawable.Drawable;
 import com.game.towerdefense.Tile;
 import com.game.towerdefense.R;
 
-public class GenericTower extends AbstractTower {
+public class SniperTower extends AbstractTower {
 	
 	private Drawable image;
 	
 	// position, damage, delay, range, penetration, price
-	public GenericTower(Tile position) {
-		super(position, 7, 20, 100, 10, 10);
+	public SniperTower(Tile position) {
+		super(position, 10, 30, 200, 40, 15);
 	}
 	
 	@Override

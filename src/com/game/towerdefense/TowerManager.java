@@ -42,6 +42,25 @@ public class TowerManager {
 		
 		Tower t = new GenericTower(tile);
 		
+		return createTower(t, towerImage, bank);
+	}
+
+	boolean createHeavyTower(Tile tile, Drawable towerImage, Bank bank) {
+		if (tile.isBlocked())
+			return false;
+		Tower t = new HeavyTower(tile);
+		return createTower(t, towerImage, bank);
+	}
+	
+	boolean createSniperTower(Tile tile, Drawable towerImage, Bank bank) {
+		if (tile.isBlocked())
+			return false;
+		Tower t = new SniperTower(tile);
+		return createTower(t, towerImage, bank);
+	}
+	
+	private boolean createTower(Tower t, Drawable towerImage, Bank bank) {
+		
 		if (t.getPrice() > bank.getAmount())
 			return false;
 			

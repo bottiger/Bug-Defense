@@ -19,7 +19,7 @@ public abstract class AbstractTower implements Tower {
 	private int cooldown = 0;
 
 	private Creep lastTarget;
-
+	
 	public AbstractTower(Tile position, int damage, int delay, int range,
 			int penetration, int price) {
 		this.position = position;
