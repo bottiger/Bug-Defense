@@ -40,7 +40,6 @@ public class TileView extends SurfaceView {
      * Width/Height are in pixels, and Drawables will be scaled to fit to these
      * dimensions. X/Y Tile Counts are the number of tiles that will be drawn.
      */
-
 	protected static float mTileSize;
 
     protected static int mXTileCount = 320;
@@ -68,9 +67,7 @@ public class TileView extends SurfaceView {
         super(context, attrs, defStyle);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TileView);
-
-        ////mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
-        
+        //mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
         a.recycle();
     }
 
@@ -78,14 +75,13 @@ public class TileView extends SurfaceView {
         super(context, attrs);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TileView);
-
-        ////mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
-        
-        //mTileSize = tileSize(this.getWidth(), this.getHeight());
-        
+        //mTileSize = a.getInt(R.styleable.TileView_tileSize, 12);
         a.recycle();
     }
     
+    /**
+     * Set the size of a tile in order to maintain a constant map size
+     */
     public void setTileSize()
     {
     	int width = this.getWidth();
@@ -108,15 +104,6 @@ public class TileView extends SurfaceView {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//        mXTileCount = (int) Math.floor(w / mTileSize);
-//        mYTileCount = (int) Math.floor(h / mTileSize);
-//
-//        mXOffset = ((w - (mTileSize * mXTileCount)) / 2);
-//        mYOffset = ((h - (mTileSize * mYTileCount)) / 2);
-//
-//        mTileGrid = new int[mXTileCount][mYTileCount];
-//        clearTiles();
-    	
     	mTileGrid = new int[mXTileCount][mYTileCount];
         
         mTileSize = tileSize(w,h);
@@ -187,9 +174,6 @@ public class TileView extends SurfaceView {
     
     private float tileSize(int screenWidth, int screenHeight)
     {
-    	//int XTileSize = (int) Math.floor(screenWidth / mXTileCount);
-        //int YTileSize = (int) Math.floor(screenHeight / mYTileCount);
-        
     	float XTileSize = (float) screenWidth  / (float) mXTileCount;
         float YTileSize = (float) screenHeight / (float) mYTileCount;
         

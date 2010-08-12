@@ -12,7 +12,7 @@ public class GenericTower extends AbstractTower {
 	private Drawable image;
 	
 	public GenericTower(Tile position) {
-		super(position, 7, 20, 100, 10);
+		super(position, 7, 20, 100, 10, 10);
 	}
 	
 	@Override

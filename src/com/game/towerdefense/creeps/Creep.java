@@ -13,6 +13,8 @@ public interface Creep {
 	
 	public void setSpeed(int speed, int milliSeconds);
 	
+	public int getValue();
+	
 	public int getHealth();
 	
 	public int getHealthPercentage();

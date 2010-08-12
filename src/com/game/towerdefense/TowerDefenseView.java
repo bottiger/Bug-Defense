@@ -23,6 +23,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -38,7 +39,6 @@ import android.widget.TextView;
  * by the system.
  */
 class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
-//class TowerDefenseView extends SurfaceView implements SurfaceHolder.Callback {
 
 	class TowerDefenseThread extends Thread {
 		/*
@@ -66,11 +66,10 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		/*
 		 * UI constants (i.e. the speed & fuel bars)
 		 */
-		public static final int TILE_SIZE = 10;
 
 		public static final int CREEP_HEALTH_BAR = 24; // width of the bar(s)
 		public static final int CREEP_HEALTH_BAR_HEIGHT = 3; // height of the
-																// bar(s)
+		// bar(s)
 		public static final int CREEP_HEALTH_BAR_HOVER_HEIGHT = 10;
 
 		private static final String KEY_DIFFICULTY = "mDifficulty";
@@ -135,19 +134,22 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private ArrayList<Creep> mCreepList = new ArrayList<Creep>();
 		private ArrayList<Tower> mTowerList = new ArrayList<Tower>();
 		private Route route = null;
+		private Wave wave = new Wave();
+		private TileMap mTileMap;
+		private TowerManager mTowerManager;
 
 		/** The amount of lives the player has */
 		private int mLivesLeft = TOTAL_LIVES;
 
 		/** Used to figure out elapsed time between frames */
 		private long mLastTime;
-		
+
 		/** Used to figure out elapsed time between frames */
 		private long mTimeMainLoop;
 		private double mFPS = 0;
 		private double mMinFPS;
 		private double mMaxFPS;
-		
+
 		private int mIteration;
 
 		/** Used to figure out elapsed time since last creep */
@@ -181,11 +183,16 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 * How long should our application sleep between the iterations
 		 */
 		public long mMoveDelay = 20;
-		
+
 		/**
 		 * Lives
 		 */
 		private int mLives = TOTAL_LIVES;
+		
+		/**
+		 * Lives
+		 */
+		private Bank mMoney = new Bank(22);
 
 		/**
 		 * Create a simple handler that we can use to cause animation to happen.
@@ -244,7 +251,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			mHealthLostColor = new Paint();
 			mHealthLostColor.setAntiAlias(true);
 			mHealthLostColor.setARGB(255, 0, 0, 0);
-			
+
 			mTextColor = new Paint();
 			mTextColor.setAntiAlias(true);
 			mTextColor.setARGB(255, 255, 255, 255);
@@ -265,42 +272,21 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
-				
+
 				TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
-				//int h = mTowerDefenseView.getWidth();
-				
-				// First set the game for Medium difficulty
-				ArrayList<Tile> checkPoints = new ArrayList<Tile>();
-				checkPoints.add(new Tile(100, 40, mTowerDefenseView));
-				checkPoints.add(new Tile(100, 350, mTowerDefenseView));
-				checkPoints.add(new Tile(180, 350, mTowerDefenseView));
-				checkPoints.add(new Tile(180, 200, mTowerDefenseView));
-				checkPoints.add(new Tile(300, 200, mTowerDefenseView));
 
-				Tile creepStart = new Tile(0, 40, mTowerDefenseView);
-				Tile creepEnd = new Tile(300, 400, mTowerDefenseView);
+				route = RouteGenerator.GenericRoute(mTowerDefenseView);
+				mTileMap = new TileMap(mTowerDefenseView);
+				mTowerManager = new TowerManager(mTileMap);
 
-				route = new Route(creepStart, creepEnd, mTowerDefenseView, checkPoints);
+				mTowerManager.createGenericTower(150, 150, mTowerImage, mMoney);
+				mTowerManager.createGenericTower(225, 225, mTowerImage, mMoney);
 
-				GenericCreep testMonster = new GenericCreep(10, 100, 10, route);
-				GenericCreep testMonster2 = new GenericCreep(10, 100, 10, route);
-				GenericCreep testMonster3 = new GenericCreep(10, 100, 10, route);
+				for (int i = 0; i < 20; i++) {
+					GenericCreep creep = new GenericCreep(10, 100, 10, route);
+					wave.addCreeps(creep, mCreepImage);
+				}
 
-				testMonster.setImage(mCreepImage);
-				testMonster2.setImage(mCreepImage);
-				testMonster3.setImage(mCreepImage);
-				
-				mPendingCreepList.add(testMonster);
-				mPendingCreepList.add(testMonster2);
-				mPendingCreepList.add(testMonster3);
-
-				Tower testTower = new GenericTower(new Tile(150, 150, mTowerDefenseView));
-				Tower testTower2 = new GenericTower(new Tile(225, 225, mTowerDefenseView));
-				
-				testTower.setImage(mTowerImage);
-				testTower2.setImage(mTowerImage);
-				mTowerList.add(testTower);
-				mTowerList.add(testTower2);
 			}
 		}
 
@@ -332,20 +318,20 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		@Override
 		public void run() {
 			mIteration++;
-			
+
 			if (mTimeMainLoop != 0) {
-				double timeDiff = System.currentTimeMillis()- mTimeMainLoop;
+				double timeDiff = System.currentTimeMillis() - mTimeMainLoop;
 				double timeDiffSeconds = (double) (timeDiff / 1000.0);
 				mFPS = Math.round((1.0 / timeDiffSeconds));
-				
+
 				if (mFPS > mMaxFPS)
 					mMaxFPS = mFPS;
-				
+
 				if (mFPS < mMinFPS)
 					mMinFPS = mFPS;
 			}
 			mTimeMainLoop = System.currentTimeMillis();
-			
+
 			Canvas c = null;
 			try {
 				c = mSurfaceHolder.lockCanvas(null);
@@ -544,19 +530,20 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 * Canvas.
 		 */
 		private void doDraw(Canvas canvas) {
-			
+
 			TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
 			mTowerDefenseView.setTileSize();
-			
+
 			// Draw the background image. Operations on the Canvas accumulate
 			// so this is like clearing the screen.
 			canvas.drawBitmap(mBackgroundImage, 0, 0, null);
-			
+
 			// draw text
 			canvas.drawText("Escaped creeps: " + mLives, 200, 20, mTextColor);
 			canvas.drawText("FPS: " + mFPS, 200, 40, mTextColor);
 			canvas.drawText("min FPS: " + mMinFPS, 200, 60, mTextColor);
 			canvas.drawText("max FPS: " + mMaxFPS, 200, 80, mTextColor);
+			canvas.drawText("Bank: " + mMoney.getAmount(), 200, 100, mTextColor);
 
 			// Draw path
 			Tile startPoint = null;
@@ -565,48 +552,52 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			Tile globalStartPoint = route.getStart();
 			Tile globalEndPoint = route.getEnd();
 
-			ArrayList<Tile> t = route.getCheckPoints();
+			ArrayList<Tile> routeCheckPoints = route.getCheckPoints();
 
-			for (Tile c : t) {
+			// Draw Route
+			for (Tile c : routeCheckPoints) {
 				startPoint = c;
 				if (endPoint != null) {
 					// Draw the route
 					int startX = startPoint.getPixel().x;
 					int startY = startPoint.getPixel().y;
-					
-					canvas.drawLine(startPoint.getPixel().x, startPoint.getPixel().y, endPoint.getPixel().x,
-							endPoint.getPixel().y, mLinePaint);
+
+					canvas.drawLine(startPoint.getPixel().x, startPoint
+							.getPixel().y, endPoint.getPixel().x, endPoint
+							.getPixel().y, mLinePaint);
 				} else {
-					canvas.drawLine(globalStartPoint.getPixel().x, globalStartPoint.getPixel().y,
-							startPoint.getPixel().x, startPoint.getPixel().y, mLinePaint);
+					canvas.drawLine(globalStartPoint.getPixel().x,
+							globalStartPoint.getPixel().y, startPoint
+									.getPixel().x, startPoint.getPixel().y,
+							mLinePaint);
 				}
 				endPoint = c;
 			}
 
-			canvas.drawLine(endPoint.getPixel().x, endPoint.getPixel().y, globalEndPoint.getPixel().x,
-					globalEndPoint.getPixel().y, mLinePaint);
+			canvas.drawLine(endPoint.getPixel().x, endPoint.getPixel().y,
+					globalEndPoint.getPixel().x, globalEndPoint.getPixel().y,
+					mLinePaint);
 
-			// Draw creeos
+			// Draw creeps
 			// mCreepImage.setBounds(40, 40, 40 + 24, 40 + 24);
 			// mCreepImage.draw(canvas);
 
 			for (Creep creep : mCreepList) {
 				Tile pos = creep.getPosition();
 				Drawable creepImg = creep.getImage();
-				
+
 				int leftBound = creep.getLeftBound();
 				int upperBound = creep.getUpperBound();
 				int rightBound = creep.getRightBound();
 				int lowerBound = creep.getLowerBound();
 
-				creepImg.setBounds(leftBound, upperBound, rightBound, lowerBound); // l,
-																			// t
-																			// ,
-																			// r
-																			// ,b
+				creepImg.setBounds(leftBound, upperBound, rightBound,
+						lowerBound); // l,
+				// t
+				// ,
+				// r
+				// ,b
 				creepImg.draw(canvas);
-
-				// creep.setHealth(66);
 
 				// Draw health bar
 				int healthLeft = (int) (CREEP_HEALTH_BAR * creep
@@ -616,35 +607,34 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 						- CREEP_HEALTH_BAR_HEIGHT;
 
 				// red health bar
-				
+
 				int barUpperBound = upperBound - CREEP_HEALTH_BAR_HOVER_HEIGHT;
 				int barLowerBound = upperBound - healthBarBottom;
-				mScratchRect.set(leftBound, barUpperBound,
-						leftBound + healthLeft, barLowerBound); // l t r b
+				mScratchRect.set(leftBound, barUpperBound, leftBound
+						+ healthLeft, barLowerBound); // l t r b
 				canvas.drawRect(mScratchRect, mHealthLeftColor);
 
 				// black damage bar
-				mScratchRect.set(leftBound + healthLeft, barUpperBound, 
-						leftBound
-						+ CREEP_HEALTH_BAR, barLowerBound); // l t r b
+				mScratchRect.set(leftBound + healthLeft, barUpperBound,
+						leftBound + CREEP_HEALTH_BAR, barLowerBound); // l t r b
 				canvas.drawRect(mScratchRect, mHealthLostColor);
 			}
 
 			// Draw towers
-			for (Tower tower : mTowerList) {
-				Tile pos = tower.getPosition();
+			for (Tower tower : mTowerManager.towers()) {
 				Drawable creepImg = tower.getImage();
-				
-				int leftBound =  tower.getLeftBound();
+
+				int leftBound = tower.getLeftBound();
 				int upperBound = tower.getUpperBound();
 				int rightBound = tower.getRightBound();
 				int lowerBound = tower.getLowerBound();
 
-				creepImg.setBounds(leftBound, upperBound, rightBound, lowerBound); // l,
-																			// t
-																			// ,
-																			// r
-																			// ,b
+				creepImg.setBounds(leftBound, upperBound, rightBound,
+						lowerBound); // l,
+				// t
+				// ,
+				// r
+				// ,b
 				creepImg.draw(canvas);
 			}
 
@@ -669,49 +659,68 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			if (mLastTime > now)
 				return;
 
-			if (mLastCreepTime + 1000 < now) {
-				if (!mPendingCreepList.isEmpty()) {
-					mCreepList.add(mPendingCreepList.get(0));
-					mPendingCreepList.remove(0);
-					mLastCreepTime = now;
-				}
+			// Release new creatures at a certain time interval
+			if (wave.shouldRelease()) {
+				mCreepList.add(wave.release());
 			}
 
-			for (Iterator<Creep> i = mCreepList.iterator(); i.hasNext(); ) {
-			    Creep creep = i.next();
+			for (Iterator<Creep> i = mCreepList.iterator(); i.hasNext();) {
+				Creep creep = i.next();
 
-			    boolean escaped = creep.isLastPos();
-			    if (escaped || creep.getHealth() <= 0) {
-			    	if (escaped) {
-			    		mLives -= 1;
-			    	}
-			        i.remove();
-			    } else {
-			    	creep.move();
-			    }
-			}
-
-			/*
-			for (Creep creep : mCreepList) {
-				// remove creatures
-				if (creep.isLastPos() || creep.getHealth() <= 0) {
-					mCreepList.remove(creep);
+				boolean escaped = creep.isLastPos();
+				if (escaped || creep.getHealth() <= 0) {
+					if (escaped) {
+						mLives -= 1;
+					} else {
+						mMoney.increaseMoney(creep.getValue());
+					}
+					i.remove();
 				} else {
-					// move creatures
 					creep.move();
 				}
-				//creep.move();
 			}
-			*/
 
 			// shoot
-			for (Tower tower : mTowerList) {
+			for (Tower tower : mTowerManager.towers()) {
 				tower.shoot(mCreepList);
 			}
 
 			double elapsed = (now - mLastTime) / 1000.0;
 
 			mLastTime = now;
+		}
+
+		public boolean onTouchEvent(MotionEvent event) {
+			int action = event.getAction();
+
+			if (action == MotionEvent.ACTION_UP) {
+				float xp = event.getX();
+				float yp = event.getY();
+
+				Tile towerPlace = getTileTouch(xp, yp);
+				mTowerManager.createGenericTower(towerPlace, mTowerImage, mMoney);
+
+				return true;
+			}
+
+			return true;
+
+		}
+
+		/**
+		 * Returns the state of the game
+		 * 
+		 * @return
+		 */
+		public int getMode() {
+			return mMode;
+		}
+
+		private Tile getTileTouch(float touchX, float touchY) {
+			int x = (int) (touchX / mTileSize);
+			int y = (int) (touchY / mTileSize);
+
+			return mTileMap.getTile(x, y);
 		}
 
 	}
@@ -751,6 +760,14 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 	 */
 	public TowerDefenseThread getThread() {
 		return thread;
+	}
+
+	/**
+	 * Standard override to get touch events.
+	 */
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		return thread.onTouchEvent(event);
 	}
 
 	/**
@@ -822,4 +839,5 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			}
 		}
 	}
+
 }

@@ -13,7 +13,7 @@ public class GenericCreep extends AbstractCreep {
 	private Drawable image;
 
 	public GenericCreep(int speed, int health, int armour, Route route) {
-		super(speed, health, armour, route);
+		super(speed, health, armour, 1, route);
 	}
 
 	@Override

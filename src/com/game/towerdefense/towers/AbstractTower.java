@@ -14,22 +14,28 @@ public abstract class AbstractTower implements Tower {
 	private int range;
 	private int penetration;
 	private int delay;
+	private int price;
 
 	private int cooldown = 0;
 
 	private Creep lastTarget;
 
 	public AbstractTower(Tile position, int damage, int delay, int range,
-			int penetration) {
+			int penetration, int price) {
 		this.position = position;
 		this.damage = damage;
 		this.range = range;
 		this.penetration = penetration;
 		this.delay = delay;
+		this.price = price;
 	}
 
 	public int getRange() {
 		return range;
+	}
+	
+	public int getPrice() {
+		return price;
 	}
 
 	public boolean inRange(int x, int y) {
@@ -39,11 +45,11 @@ public abstract class AbstractTower implements Tower {
 	}
 
 	public Creep findTarget(ArrayList<Creep> creeps) {
-		if ((lastTarget != null) && inRange(lastTarget.x(), lastTarget.y()))
+		if ((lastTarget != null) && inRange(lastTarget.getPosition().x, lastTarget.getPosition().y))
 			return lastTarget;
 		else {
 			for (Creep c : creeps) {
-				if (inRange(c.x(), c.y())) {
+				if (inRange(c.getPosition().x, c.getPosition().y)) {
 					lastTarget = c;
 					return c;
 				}

@@ -8,6 +8,7 @@ package com.game.towerdefense;
  */
 public class Tile {
 
+	// Tile coordinates
 	public final int x;
 	public final int y;
 	

@@ -9,6 +9,8 @@ import com.game.towerdefense.creeps.Creep;
 public interface Tower {
 	
 	public int getRange();
+	
+	public int getPrice();
 
 	public void setRange(int range);
 	
