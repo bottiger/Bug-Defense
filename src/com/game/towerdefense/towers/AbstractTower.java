@@ -9,6 +9,8 @@ public abstract class AbstractTower implements Tower {
 
 	private final int IMAGE_SIZE = 24;
 	private final Tile position;
+	
+	private int size = 10;
 
 	private int damage;
 	private int range;
@@ -110,6 +112,10 @@ public abstract class AbstractTower implements Tower {
 	
 	public int getRightBound() {
 		return this.position.getPixel().x + IMAGE_SIZE/2;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 
 	private boolean cool() {

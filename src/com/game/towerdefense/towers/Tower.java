@@ -41,4 +41,6 @@ public interface Tower {
 	Drawable getImage();
 
 	int getImageID();
+	
+	public int getSize();
 }

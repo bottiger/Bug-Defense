@@ -2,10 +2,8 @@ package com.game.towerdefense;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import android.graphics.drawable.Drawable;
-
-import com.game.towerdefense.creeps.Creep;
+import com.game.towerdefense.creeps.*;
 
 public class Wave {
 	
