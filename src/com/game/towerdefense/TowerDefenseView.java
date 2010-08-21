@@ -284,8 +284,8 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			
 			// Initialize paints for the game
 			mHealthLeftColor 	= Color.healthLeftColor();
-			mHealthLostColor 	= Color.healthLostColor();
-			mTextColor 			= Color.textColor();
+			mHealthLostColor 	= Color.black();
+			mTextColor 			= Color.white();
 
 			mDifficulty = DIFFICULTY_MEDIUM;
 
@@ -325,12 +325,12 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 * @param savedState
 		 *            Bundle containing the game state
 		 */
-		public synchronized void restoreState(Bundle savedState) {
-			synchronized (mSurfaceHolder) {
-				setState(STATE_PAUSE);
-				// TODO restore game. See LunarView.java
-			}
-		}
+//		public synchronized void restoreState(Bundle savedState) {
+//			synchronized (mSurfaceHolder) {
+//				setState(STATE_PAUSE);
+//				// TODO restore game. See LunarView.java
+//			}
+//		}
 
 		@Override
 		public void run() {
@@ -382,7 +382,8 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		public Bundle saveState(Bundle map) {
 			synchronized (mSurfaceHolder) {
 				if (map != null) {
-					// TODO save the state of the game
+					map.putInt("bank", mMoney.getAmount());
+					map.putInt("lives", mLives);
 				}
 			}
 			return map;
@@ -654,16 +655,12 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private void drawMenuBox(TowerDefenseView view, Canvas canvas) {
 			mWidth = view.getWidth();
 			mHeight = view.getHeight();
-			mBarHeight = (int) (140.0 / mTileSize);
+			mBarHeight = (int) (140.0 / TileView.mTileSize);
+			//mBarHeight = (int)(mHeight * 0.08);
 			int imageSize = 20;
-
-			Paint backgroundColor = new Paint();
-			backgroundColor.setAntiAlias(true);
-			backgroundColor.setARGB(255, 0, 0, 0);
-
-			Paint foregroundColor = new Paint();
-			foregroundColor.setAntiAlias(true);
-			foregroundColor.setARGB(255, 255, 255, 255);
+			
+			Paint backgroundColor = Color.black(); 
+			Paint foregroundColor = Color.white();
 
 			canvas.drawRect(0, mHeight, mWidth, mHeight - mBarHeight,
 					backgroundColor);

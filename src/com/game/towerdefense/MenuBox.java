@@ -20,19 +20,14 @@ public class MenuBox {
 		int width = view.getWidth();
 		int height = view.getHeight();
 		
-		int barHeight = 100;
+		int barHeight = (int)(100.0/TileView.mTileSize);
 
 		Drawable tower1 = view.getContext().getResources().getDrawable(R.drawable.tower1);
 		Drawable tower2 = view.getContext().getResources().getDrawable(R.drawable.tower2);
 		Drawable tower3 = view.getContext().getResources().getDrawable(R.drawable.tower3);
-		
-		Paint backgroundColor = new Paint();
-		backgroundColor.setAntiAlias(true);
-		backgroundColor.setARGB(255, 0, 0, 0);
-		
-		Paint foregroundColor = new Paint();
-		foregroundColor.setAntiAlias(true);
-		foregroundColor.setARGB(255, 255, 255, 255);
+
+		Paint backgroundColor = Color.black(); 
+		Paint foregroundColor = Color.white();
 		
 		canvas.drawRect(0, 0, width, barHeight, backgroundColor);
 		drawTower(canvas, tower1, foregroundColor, width/8, 50);

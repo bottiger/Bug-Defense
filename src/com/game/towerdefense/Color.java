@@ -4,11 +4,11 @@ import android.graphics.Paint;
 
 public class Color {
 	
-	static Paint textColor() {
+	static Paint white() {
 		return newPaint(255, 255, 255, 255);
 	}
 	
-	static Paint healthLostColor() {
+	static Paint black() {
 		return newPaint(255, 0, 0, 0);
 	}
 	
