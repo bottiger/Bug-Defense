@@ -16,8 +16,13 @@ public class Color {
 		return newPaint(255, 255, 0, 0);
 	}
 	
-	static Paint PathColor() {
-		return newPaint(139, 69, 19, 0, 40);
+	static Paint pathColor() {
+		int pathWidth = (int)(40.0/TileView.mTileSize);
+		return pathColor(pathWidth);
+	}
+	
+	static Paint pathColor(float pathWidth) {
+		return newPaint(139, 69, 19, 0, (int)pathWidth);
 	}
 	
 	static Paint canBuildColor() {

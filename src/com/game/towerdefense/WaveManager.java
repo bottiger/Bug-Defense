@@ -14,22 +14,6 @@ public class WaveManager {
 	private int waveDelay = 20000; // in milliseconds
 	private long lastRelease;
 
-	public WaveManager(TowerDefenseView towerDefenseView) {
-
-		Route route = RouteGenerator.GenericRoute(TileView.mTileSize);
-		Drawable genericImage = towerDefenseView.getResources().getDrawable(
-				R.drawable.creeps);
-
-		Wave wave = new Wave(GenericCreep.class, genericImage, route, 20);
-		addWave(wave);
-
-		wave = new Wave(GenericCreep.class, genericImage, route, 20);
-		addWave(wave);
-
-		wave = new Wave(GenericCreep.class, genericImage, route, 20);
-		addWave(wave);
-	}
-
 	void addWave(Wave w) {
 		waveList.add(w);
 		waveNumber++;

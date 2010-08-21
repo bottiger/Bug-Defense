@@ -44,9 +44,16 @@ public class PlaceableTower {
 
 	public Rect getRect(Tile tile) {
 		return new Rect((int) (tile.getPixel().x - TileView.mTileSize),
-				(int) (tile.getPixel().y - TileView.mTileSize), 
-				(int) (tile.getPixel().x + TileView.mTileSize),
-				(int) (tile.getPixel().y + TileView.mTileSize));
+				(int) (tile.getPixel().y - TileView.mTileSize), (int) (tile
+						.getPixel().x + TileView.mTileSize), (int) (tile
+						.getPixel().y + TileView.mTileSize));
+	}
+
+	public Rect getRect() {
+		return new Rect((int) (position.getPixel().x - size*TileView.mTileSize),
+				(int) (position.getPixel().y - size*TileView.mTileSize),
+				(int) (position.getPixel().x + size*TileView.mTileSize),
+				(int) (position.getPixel().y + size*TileView.mTileSize));
 	}
 
 	public Drawable getImage() {
@@ -54,23 +61,42 @@ public class PlaceableTower {
 	}
 
 	public void draw(Canvas canvas) {
-		//image.setBounds(this.getRect(tileSize));
-		//image.draw(canvas);
-		canvas.drawCircle(x, y, getRange()*TileView.mTileSize, Color.towerRangeColor());
-		//canvas.drawRect(getRect(TileView.mTileSize), Color.canBuildColor());
+		// image.setBounds(this.getRect(tileSize));
+		// image.draw(canvas);
+		canvas.drawCircle(x, y, getRange() * TileView.mTileSize, Color
+				.towerRangeColor());
+		// canvas.drawRect(getRect(TileView.mTileSize), Color.canBuildColor());
 		drawTiles(canvas);
 	}
-	
+
 	private void drawTiles(Canvas canvas) {
-		for (int x = position.x-size; x <= position.x+size; x++) {
-			for (int y = position.y-size; y <position.y+size; y++) {
-				Tile tile = TileMap.getTile(x, y, TileView.mTileSize);
-				if (tile.isBlocked())
-					canvas.drawRect(getRect(tile), Color.canNotBuildColor());
-				else
-					canvas.drawRect(getRect(tile), Color.canBuildColor());
-			}
+		// only test the four corners of th tower
+		Tile c1 = TileMap.getTile(position.x + size, position.y + size,
+				TileView.mTileSize);
+		Tile c2 = TileMap.getTile(position.x + size, position.y - size,
+				TileView.mTileSize);
+		Tile c3 = TileMap.getTile(position.x - size, position.y + size,
+				TileView.mTileSize);
+		Tile c4 = TileMap.getTile(position.x - size, position.y - size,
+				TileView.mTileSize);
+
+		if (c1.isBlocked() || c2.isBlocked() || c3.isBlocked()
+				|| c4.isBlocked()) {
+			canvas.drawRect(getRect(), Color.canNotBuildColor());
+			return;
 		}
+
+		canvas.drawRect(getRect(), Color.canBuildColor());
+
+		// for (int x = position.x-size; x <= position.x+size; x++) {
+		// for (int y = position.y-size; y <position.y+size; y++) {
+		// Tile tile = TileMap.getTile(x, y, TileView.mTileSize);
+		// if (tile.isBlocked())
+		// canvas.drawRect(getRect(tile), Color.canNotBuildColor());
+		// else
+		// canvas.drawRect(getRect(tile), Color.canBuildColor());
+		// }
+		// }
 	}
 
 }

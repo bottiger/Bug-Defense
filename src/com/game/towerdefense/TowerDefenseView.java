@@ -227,7 +227,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		/**
 		 * Lives
 		 */
-		private Bank mMoney = new Bank(220);
+		private Bank mMoney = new Bank(40);
 
 		/**
 		 * Create a simple handler that we can use to cause animation to happen.
@@ -280,13 +280,12 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			// mLanderWidth = mLanderImage.getIntrinsicWidth();
 			// mLanderHeight = mLanderImage.getIntrinsicHeight();
 
+			mScratchRect = new RectF(0, 0, 0, 0);
+			
 			// Initialize paints for the game
-			mLinePaint 			= Color.PathColor();
 			mHealthLeftColor 	= Color.healthLeftColor();
 			mHealthLostColor 	= Color.healthLostColor();
 			mTextColor 			= Color.textColor();
-
-			mScratchRect = new RectF(0, 0, 0, 0);
 
 			mDifficulty = DIFFICULTY_MEDIUM;
 
@@ -300,10 +299,10 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			synchronized (mSurfaceHolder) {
 				TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
 
-				route = RouteGenerator.GenericRoute(mTileSize);
+				route = GameGenerator.genericRoute();
 				mTowerManager = new TowerManager(mTileSize);
 				
-				mWaveManager = new WaveManager(mTowerDefenseView);
+				mWaveManager = GameGenerator.defaultWaves(mTowerDefenseView);
 
 			}
 		}
@@ -568,6 +567,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 
 			ArrayList<Tile> routeCheckPoints = route.getCheckPoints();
 
+			mLinePaint 			= Color.pathColor((float)40.0/mTileSize);
 			// Draw Route
 			for (Tile c : routeCheckPoints) {
 				startPoint = c;
@@ -591,7 +591,24 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			canvas.drawLine(endPoint.getPixel().x, endPoint.getPixel().y,
 					globalEndPoint.getPixel().x, globalEndPoint.getPixel().y,
 					mLinePaint);
+			
+			// Draw towers
+			for (Tower tower : mTowerManager.towers()) {
+				Drawable creepImg = tower.getImage();
 
+				int leftBound = tower.getLeftBound();
+				int upperBound = tower.getUpperBound();
+				int rightBound = tower.getRightBound();
+				int lowerBound = tower.getLowerBound();
+
+				creepImg.setBounds(leftBound, upperBound, rightBound,
+						lowerBound);
+				creepImg.draw(canvas);
+			}
+			
+			canvas.save();
+
+			// Draw creeps
 			for (Creep creep : mCreepList) {
 				Drawable creepImg = creep.getImage();
 
@@ -626,24 +643,9 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 				canvas.drawRect(mScratchRect, mHealthLostColor);
 			}
 
-			// Draw towers
-			for (Tower tower : mTowerManager.towers()) {
-				Drawable creepImg = tower.getImage();
-
-				int leftBound = tower.getLeftBound();
-				int upperBound = tower.getUpperBound();
-				int rightBound = tower.getRightBound();
-				int lowerBound = tower.getLowerBound();
-
-				creepImg.setBounds(leftBound, upperBound, rightBound,
-						lowerBound);
-				creepImg.draw(canvas);
-			}
-
 			if (mPlaceableTower != null)
 				mPlaceableTower.draw(canvas);
 
-			canvas.save();
 			canvas.restore();
 
 			// TODO see LunarViewer
