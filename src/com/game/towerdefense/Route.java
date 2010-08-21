@@ -6,7 +6,7 @@ public class Route {
 
 	private Tile start;
 	private Tile end;
-	private TowerDefenseView view;
+	private float tileSize;
 	
 	private ArrayList<Tile> checkPoints = new ArrayList<Tile>();
 
@@ -14,20 +14,20 @@ public class Route {
 	private ArrayList<Integer> pixelPath = new ArrayList<Integer>();
 	//private ArrayList<Tile> checkPoints;
 
-	public Route(Tile startPos, Tile endPos, TowerDefenseView view,
+	public Route(Tile startPos, Tile endPos, float tileSize,
 			ArrayList<Tile> checkPoints) {
 		this.checkPoints = checkPoints;
 		this.start = startPos;
 		this.end = endPos;
-		this.view = view;
+		this.tileSize = tileSize;
 		
 		calculateRoute(startPos, endPos, checkPoints);
 	}
 	
-	public Route(Tile startPos, Tile endPos, TowerDefenseView view) {
+	public Route(Tile startPos, Tile endPos, float tileSize) {
 		this.start = startPos;
 		this.end = endPos;
-		this.view = view;
+		this.tileSize = tileSize;
 		
 		//calculateRoute(startPos, endPos, checkpoints);
 	}
@@ -78,10 +78,10 @@ public class Route {
 			end   = cp;
 			
 			for (int i = start.x; i != end.x; i = (int) (i + Math.signum(end.x - start.x)))
-				this.path.add(new Tile(i, start.y, view));
+				this.path.add(new Tile(i, start.y));
 
 			for (int j = start.y; j != end.y; j = (int) (j + Math.signum(end.y - start.y)))
-				this.path.add(new Tile(end.x, j, view));
+				this.path.add(new Tile(end.x, j));
 		}
 	}
 

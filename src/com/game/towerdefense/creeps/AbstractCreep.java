@@ -10,10 +10,11 @@ public abstract class AbstractCreep implements Creep {
 	
 	private final int IMAGE_SIZE = 24;
 	
+	private Drawable image;
+	
 	private final int iniSpeed;
 	private final int iniHealth;
 	private final int iniArmour;
-	private final int lastPositionIndex;
 	private final int value;
 
 	private int health;
@@ -21,6 +22,7 @@ public abstract class AbstractCreep implements Creep {
 	private Route route;
 	
 	private int positionIndex = 0;
+	private int lastPositionIndex;
 
 	public AbstractCreep(int speed, int health, int armour, int value, Route route) {
 		this.iniSpeed = speed;
@@ -34,6 +36,16 @@ public abstract class AbstractCreep implements Creep {
 		this.lastPositionIndex = route.length()-1;
 
 	}
+	
+	public AbstractCreep(int speed, int health, int armour, int value) {
+		this.iniSpeed = speed;
+		this.iniHealth = health;
+		this.iniArmour = armour;
+
+		this.value = value;
+		this.speed = speed;
+		this.health = health;
+	}
 
 	public boolean isLastPos() {
 		return positionIndex == lastPositionIndex;
@@ -45,6 +57,7 @@ public abstract class AbstractCreep implements Creep {
 
 	public void setRoute(Route route) {
 		this.route = route;
+		this.lastPositionIndex = route.length()-1;
 	}
 
 	public int getArmour() {
@@ -120,5 +133,16 @@ public abstract class AbstractCreep implements Creep {
 	}
 	
 	public abstract int getImageID();
+
+	@Override
+	public Drawable getImage() {
+		return image;
+	}
+
+	@Override
+	public void setImage(Drawable img) {
+		image = img;
+
+	}
 
 }

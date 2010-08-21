@@ -3,6 +3,7 @@ package com.game.towerdefense.towers;
 import java.util.ArrayList;
 
 import com.game.towerdefense.Tile;
+import com.game.towerdefense.TileView;
 import com.game.towerdefense.creeps.Creep;
 
 public abstract class AbstractTower implements Tower {
@@ -99,19 +100,19 @@ public abstract class AbstractTower implements Tower {
 	}
 	
 	public int getLowerBound() {
-		return this.position.getPixel().y + IMAGE_SIZE/2;
+		return (int)(this.position.getPixel().y + size*TileView.mTileSize);
 	}
 	
 	public int getUpperBound() {
-		return this.position.getPixel().y - IMAGE_SIZE/2;
+		return (int)(this.position.getPixel().y - size*TileView.mTileSize);
 	}
 	
 	public int getLeftBound() {
-		return this.position.getPixel().x - IMAGE_SIZE/2;
+		return (int)(this.position.getPixel().x - size*TileView.mTileSize);
 	}
 	
 	public int getRightBound() {
-		return this.position.getPixel().x + IMAGE_SIZE/2;
+		return (int)(this.position.getPixel().x + size*TileView.mTileSize);
 	}
 	
 	public int getSize() {

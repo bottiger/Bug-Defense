@@ -11,10 +11,10 @@ public class TowerManager {
 
 	private List<Tower>towerList = new LinkedList<Tower>();
 	private int towerNumber = 0;
-	private TileMap tileMap;
+	private float tileSize;
 	
-	public TowerManager(TileMap tileMap) {
-		this.tileMap = tileMap;
+	public TowerManager(float tileSize) {
+		this.tileSize = tileSize;
 	}
 	
 	void addTower(Tower t) {
@@ -32,7 +32,7 @@ public class TowerManager {
 	}
 	
 	boolean createGenericTower(int x, int y, Drawable towerImage, Bank bank) {
-		Tile tile = tileMap.getTile(x, y);
+		Tile tile = TileMap.getTile(x, y, tileSize);
 		return createGenericTower(tile, towerImage, bank);
 	}
 	
@@ -63,10 +63,33 @@ public class TowerManager {
 		
 		if (t.getPrice() > bank.getAmount())
 			return false;
+		
+		if (!blockTiles(t))
+			return false;
 			
 		t.setImage(towerImage);
 		addTower(t);
 		bank.decreaseAmount(t.getPrice());
+		return true;
+	}
+	
+	private boolean blockTiles(Tower tower) {
+		int tx = tower.getPosition().x;
+		int ty = tower.getPosition().y;
+		int ts = tower.getSize();
+		
+		for (int x = tx-ts; x <= tx+ts; x++) {
+			for (int y = ty-ts; y <ty+ts; y++) {
+				if (TileMap.getTile(x, y, TileView.mTileSize).isBlocked())
+					return false;				
+			}
+		}
+		
+		for (int x = tx-ts; x <= tx+ts; x++) {
+			for (int y = ty-ts; y <ty+ts; y++) {
+				TileMap.getTile(x, y, TileView.mTileSize).block();		
+			}
+		}
 		return true;
 	}
 	

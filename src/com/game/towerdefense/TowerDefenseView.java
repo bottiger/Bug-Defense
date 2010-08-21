@@ -17,6 +17,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -152,8 +153,8 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private ArrayList<Creep> mCreepList = new ArrayList<Creep>();
 		private ArrayList<Tower> mTowerList = new ArrayList<Tower>();
 		private Route route = null;
-		private Wave wave = new Wave();
-		private TileMap mTileMap;
+		private WaveManager mWaveManager;
+		private TileMap mTileMap = new TileMap();
 		private TowerManager mTowerManager;
 
 		/**
@@ -199,9 +200,6 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private Paint mHealthLeftColor;
 		private Paint mHealthLostColor;
 		private Paint mTextColor;
-
-		/** "Bad" speed-too-high variant of the line color. */
-		private Paint mLinePaintBad;
 
 		/** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
 		private int mMode;
@@ -282,27 +280,11 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			// mLanderWidth = mLanderImage.getIntrinsicWidth();
 			// mLanderHeight = mLanderImage.getIntrinsicHeight();
 
-			// Initialize paints for speedometer
-			mLinePaint = new Paint();
-			mLinePaint.setAntiAlias(true);
-			mLinePaint.setARGB(139, 69, 19, 0);
-			mLinePaint.setStrokeWidth(40);
-
-			mHealthLeftColor = new Paint();
-			mHealthLeftColor.setAntiAlias(true);
-			mHealthLeftColor.setARGB(255, 255, 0, 0);
-
-			mHealthLostColor = new Paint();
-			mHealthLostColor.setAntiAlias(true);
-			mHealthLostColor.setARGB(255, 0, 0, 0);
-
-			mTextColor = new Paint();
-			mTextColor.setAntiAlias(true);
-			mTextColor.setARGB(255, 255, 255, 255);
-
-			mLinePaintBad = new Paint();
-			mLinePaintBad.setAntiAlias(true);
-			mLinePaintBad.setARGB(139, 69, 19, 0);
+			// Initialize paints for the game
+			mLinePaint 			= Color.PathColor();
+			mHealthLeftColor 	= Color.healthLeftColor();
+			mHealthLostColor 	= Color.healthLostColor();
+			mTextColor 			= Color.textColor();
 
 			mScratchRect = new RectF(0, 0, 0, 0);
 
@@ -316,18 +298,12 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
-
 				TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
 
-				route = RouteGenerator.GenericRoute(mTowerDefenseView);
-				mTileMap = new TileMap(mTowerDefenseView);
-				mTowerManager = new TowerManager(mTileMap);
-				WaveManager mWaveManager = new WaveManager(mTowerDefenseView);
-
-				for (int i = 0; i < 20; i++) {
-					GenericCreep creep = new GenericCreep(10, 100, 10, route);
-					wave.addCreeps(creep, mCreepImage);
-				}
+				route = RouteGenerator.GenericRoute(mTileSize);
+				mTowerManager = new TowerManager(mTileSize);
+				
+				mWaveManager = new WaveManager(mTowerDefenseView);
 
 			}
 		}
@@ -595,17 +571,20 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			// Draw Route
 			for (Tile c : routeCheckPoints) {
 				startPoint = c;
+				int x1, y1, x2, y2;
 				if (endPoint != null) {
-					// Draw the route
-					canvas.drawLine(startPoint.getPixel().x, startPoint
-							.getPixel().y, endPoint.getPixel().x, endPoint
-							.getPixel().y, mLinePaint);
+					x1 = startPoint.getPixel().x;
+					y1 = startPoint.getPixel().y;
+					x2 = endPoint.getPixel().x;
+					y2 = endPoint.getPixel().y;
 				} else {
-					canvas.drawLine(globalStartPoint.getPixel().x,
-							globalStartPoint.getPixel().y, startPoint
-									.getPixel().x, startPoint.getPixel().y,
-							mLinePaint);
+					x1 = globalStartPoint.getPixel().x;
+					y1 = globalStartPoint.getPixel().y;
+					x2 = startPoint.getPixel().x;
+					y2 = startPoint.getPixel().y;
 				}
+				// Draw the route
+				canvas.drawLine(x1, y1, x2, y2, mLinePaint); // l, t, r, b
 				endPoint = c;
 			}
 
@@ -614,7 +593,6 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 					mLinePaint);
 
 			for (Creep creep : mCreepList) {
-				Tile pos = creep.getPosition();
 				Drawable creepImg = creep.getImage();
 
 				int leftBound = creep.getLeftBound();
@@ -664,16 +642,11 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 
 			if (mPlaceableTower != null)
 				mPlaceableTower.draw(canvas);
-				//drawPlaceableTower(mTowerDefenseView, canvas);
 
 			canvas.save();
 			canvas.restore();
 
 			// TODO see LunarViewer
-		}
-
-		private void drawPlaceableTower(TowerDefenseView view, Canvas canvas) {
-			mPlaceableTower.draw(canvas);
 		}
 
 		private void drawMenuBox(TowerDefenseView view, Canvas canvas) {
@@ -734,6 +707,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private void updateGameState() {
 
 			long now = System.currentTimeMillis();
+			Wave wave = mWaveManager.getCurrentWave();
 
 			// Do nothing if mLastTime is in the future.
 			// This allows the game-start to delay the start of the physics
@@ -877,7 +851,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			int x = (int) (touchX / mTileSize);
 			int y = (int) (touchY / mTileSize);
 
-			return mTileMap.getTile(x, y);
+			return mTileMap.getTile(x, y, mTileSize);
 		}
 
 	}

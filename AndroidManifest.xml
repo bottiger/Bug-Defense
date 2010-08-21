@@ -2,8 +2,9 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.game.towerdefense"
-    android:versionName="0.1" android:versionCode="1">
+    android:versionName="0.1" android:versionCode="2">
     <uses-sdk android:minSdkVersion="4" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> 
     <application android:icon="@drawable/icon" android:label="Tower Defense for Android" android:debuggable="true" >
       <activity android:name="TowerDefense"
       	android:theme="@android:style/Theme.NoTitleBar.Fullscreen"

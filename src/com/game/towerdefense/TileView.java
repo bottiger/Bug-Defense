@@ -40,7 +40,7 @@ public class TileView extends SurfaceView {
      * Width/Height are in pixels, and Drawables will be scaled to fit to these
      * dimensions. X/Y Tile Counts are the number of tiles that will be drawn.
      */
-	protected static float mTileSize;
+	public static float mTileSize;
 
     protected static int mXTileCount = 320;
     protected static int mYTileCount = 480;
@@ -110,8 +110,6 @@ public class TileView extends SurfaceView {
         
         mXOffset = (int) ((w - (mTileSize * mXTileCount)) / 2);
         mYOffset = (int) ((h - (mTileSize * mYTileCount)) / 2);
-    	  
-    	clearTiles();
     }
 
     /**
@@ -128,18 +126,6 @@ public class TileView extends SurfaceView {
         tile.draw(canvas);
         
         mTileArray[key] = bitmap;
-    }
-
-    /**
-     * Resets all tiles to 0 (empty)
-     * 
-     */
-    public void clearTiles() {
-        for (int x = 0; x < mXTileCount; x++) {
-            for (int y = 0; y < mYTileCount; y++) {
-                setTile(0, x, y);
-            }
-        }
     }
 
     /**

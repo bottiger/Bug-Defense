@@ -4,22 +4,20 @@ import java.util.HashMap;
 
 public class TileMap {
 
-	private TowerDefenseView towerDefenseView;
-	private HashMap tileList = new HashMap<String, Tile>();
+	static private HashMap<Integer, Tile> tileList = new HashMap<Integer, Tile>();
 	
-	public TileMap(TowerDefenseView v) {
-		this.towerDefenseView = v;
-	}
-	
-	Tile getTile(int x, int y) {
-		Tile tile = (Tile) tileList.get(coordinateToString(x, y));
-		if (tile == null)
-			tile = new Tile(x,y, towerDefenseView);
+	static Tile getTile(int x, int y, float tileSize) {
+		int lookupConstant = 10000;
+		Tile tile = tileList.get(new Integer(x*lookupConstant+y));
+		if (tile == null) {
+			tile = new Tile(x,y);
+			tileList.put(new Integer(x*lookupConstant+y), tile);
+		}
 	
 		return tile;
 	}
 	
-	private String coordinateToString(int x, int y) {
-		return x + "+" + y;
-	}
+//	static private String coordinateToString(int x, int y) {
+//		return x + "+" + y;
+//	}
 }

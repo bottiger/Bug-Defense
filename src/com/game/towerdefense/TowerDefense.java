@@ -3,6 +3,7 @@ package com.game.towerdefense;
 import com.game.towerdefense.TowerDefenseView.TowerDefenseThread;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,9 +36,6 @@ public class TowerDefense extends Activity {
 
 	/** A handle to the View in which the game is running. */
 	private TowerDefenseView mTowerDefenseView;
-	
-	/** A handle to the TileMap in which contains all the Tiles. */
-	private TileMap mTileMap;
 
 	/**
 	 * Invoked during init to give the Activity a chance to set up its Menu.
@@ -112,6 +110,7 @@ public class TowerDefense extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//Debug.startMethodTracing("scores");
 
 		// turn off the window's title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -122,7 +121,6 @@ public class TowerDefense extends Activity {
 		// get handles to the TowerView from XML, and its LunarThread
 		mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
 		mTowerDefenseThread = mTowerDefenseView.getThread();
-		mTileMap = new TileMap(mTowerDefenseView);
 
 		// give the LunarView a handle to the TextView used for messages
 		mTowerDefenseView.setTextView((TextView) findViewById(R.id.text));
@@ -145,6 +143,7 @@ public class TowerDefense extends Activity {
 	 */
 	@Override
 	protected void onPause() {
+		//Debug.stopMethodTracing();
 		super.onPause();
 		mTowerDefenseView.getThread().pause(); // pause game when Activity
 												// pauses
