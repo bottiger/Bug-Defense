@@ -24,6 +24,7 @@ public class GameGenerator {
 
 	public static WaveManager defaultWaves(TowerDefenseView towerDefenseView) {
 
+		int level = 0;
 		Route route = genericRoute();
 		WaveManager wm = new WaveManager();
 		
@@ -36,14 +37,59 @@ public class GameGenerator {
 		Drawable genericImage3 = towerDefenseView.getResources().getDrawable(
 				R.drawable.creep2);
 
-		Wave wave = new Wave(GenericCreep.class, genericImage, route, 20);
-		wm.addWave(wave);
+		Drawable genericImage4 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep3);
+		
+		Drawable genericImage5 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep4);
+		
+		Drawable genericImage6 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep5);
+		
+		Drawable genericImage7 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep6);
 
-		wave = new Wave(GenericCreep.class, genericImage2, route, 20);
+		Drawable genericImage8 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep7);
+		
+		Drawable genericImage9 = towerDefenseView.getResources().getDrawable(
+				R.drawable.creep8);
+		
+		Wave wave = new Wave(GenericCreep.class, genericImage, route, 20, level);
 		wm.addWave(wave);
+		level++;
 
-		wave = new Wave(GenericCreep.class, genericImage3, route, 20);
+		wave = new Wave(GenericCreep.class, genericImage2, route, 20, level);
 		wm.addWave(wave);
+		level++;
+
+		wave = new Wave(GenericCreep.class, genericImage3, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage4, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage5, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage6, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage7, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage8, route, 20, level);
+		wm.addWave(wave);
+		level++;
+		
+		wave = new Wave(GenericCreep.class, genericImage9, route, 20, level);
+		wm.addWave(wave);
+		level++;
 		
 		return wm;
 	}

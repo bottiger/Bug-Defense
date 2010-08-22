@@ -18,6 +18,8 @@ public abstract class AbstractTower implements Tower {
 	private int penetration;
 	private int delay;
 	private int price;
+	
+	private int experience = 0;
 
 	private int cooldown = 0;
 
@@ -51,15 +53,16 @@ public abstract class AbstractTower implements Tower {
 		if ((lastTarget != null) && inRange(lastTarget.getPosition().x, lastTarget.getPosition().y))
 			return lastTarget;
 		else {
+			Creep bestTarget = null;
 			for (Creep c : creeps) {
 				if (inRange(c.getPosition().x, c.getPosition().y)) {
 					lastTarget = c;
-					return c;
+					if (bestTarget == null || lastTarget.getHealth() < bestTarget.getHealth())
+						bestTarget = lastTarget;
 				}
 			}
+			return lastTarget = bestTarget;
 		}
-
-		return null;
 	}
 
 	public void shoot(ArrayList<Creep> creeps) {
@@ -69,6 +72,7 @@ public abstract class AbstractTower implements Tower {
 				target.damage(damage, penetration);
 				cooldown = delay;
 				if (target.getHealth() <= 0) {
+					this.addExperience(lastTarget.getValue());
 					lastTarget = null;
 				}
 			}
@@ -125,6 +129,14 @@ public abstract class AbstractTower implements Tower {
 			return cooldown == 0;
 		} else
 			return true;
+	}
+	
+	public void addExperience(int xp) {
+		this.experience += xp;
+	}
+	
+	public int getExperience() {
+		return this.experience;
 	}
 
 }

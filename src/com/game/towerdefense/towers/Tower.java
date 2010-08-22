@@ -43,4 +43,8 @@ public interface Tower {
 	int getImageID();
 	
 	public int getSize();
+
+	public void addExperience(int xp);
+	
+	public int getExperience();
 }

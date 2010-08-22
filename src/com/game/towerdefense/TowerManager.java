@@ -87,7 +87,7 @@ public class TowerManager {
 		
 		for (int x = tx-ts; x <= tx+ts; x++) {
 			for (int y = ty-ts; y <ty+ts; y++) {
-				TileMap.getTile(x, y, TileView.mTileSize).block();		
+				TileMap.getTile(x, y, TileView.mTileSize).block(tower);		
 			}
 		}
 		return true;

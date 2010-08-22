@@ -7,6 +7,10 @@ import com.game.towerdefense.Route;
 
 public interface Creep {
 	
+	public int getLevel();
+	
+	public void setLevel(int level);
+	
 	public int getArmour();
 	
 	public int getSpeed();

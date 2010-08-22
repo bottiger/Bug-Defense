@@ -16,13 +16,14 @@ public class Wave {
 	 */
 	private final int RELEASE_THRESSHOLD = 2000;
 	
-	public Wave(Class<? extends Creep> c, Drawable image, Route route, int amount) {
+	public Wave(Class<? extends Creep> c, Drawable image, Route route, int amount, int level) {
 		for (int i = 0; i < amount; i++) {
 			Creep creep;
 			try {
 				creep = (Creep) c.newInstance();
 				creep.setRoute(route);
 				creep.setImage(image);
+				creep.setLevel(level);
 				addCreeps(creep);
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();

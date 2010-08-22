@@ -44,6 +44,9 @@ public class TileView extends SurfaceView {
 
     protected static int mXTileCount = 320;
     protected static int mYTileCount = 480;
+    
+    protected static int mWidth = 0;
+    protected static int mHeight = 0;
 
     private static int mXOffset;
     private static int mYOffset;
@@ -105,6 +108,9 @@ public class TileView extends SurfaceView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     	mTileGrid = new int[mXTileCount][mYTileCount];
+    	
+    	mWidth = w;
+    	mHeight = h;
         
         mTileSize = tileSize(w,h);
         

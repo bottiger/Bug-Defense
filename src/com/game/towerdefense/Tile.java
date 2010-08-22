@@ -1,5 +1,6 @@
 package com.game.towerdefense;
 
+import com.game.towerdefense.towers.Tower;
 import android.graphics.Rect;
 
 /**
@@ -16,6 +17,7 @@ public class Tile {
 
 	// private int tileSize;
 	private boolean blocked = false;
+	private Tower blockedBy;
 
 	public Tile(int x, int y) {
 		this.x = x;
@@ -44,7 +46,8 @@ public class Tile {
 		return this.blocked;
 	}
 
-	public void block() {
+	public void block(Tower tower) {
 		this.blocked = true;
+		this.blockedBy = tower;
 	}
 }

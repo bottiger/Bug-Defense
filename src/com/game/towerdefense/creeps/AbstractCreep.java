@@ -12,14 +12,16 @@ public abstract class AbstractCreep implements Creep {
 	
 	private Drawable image;
 	
-	private final int iniSpeed;
-	private final int iniHealth;
-	private final int iniArmour;
+	private int iniSpeed;
+	private int iniHealth;
+	private int iniArmour;
 	private final int value;
 
 	private int health;
 	private int speed;
 	private Route route;
+	private int level = 1;
+	private float levelHealthBonus = 1.3f;
 	
 	private int positionIndex = 0;
 	private int lastPositionIndex;
@@ -70,6 +72,16 @@ public abstract class AbstractCreep implements Creep {
 
 	public void setSpeed(int speed, int milliSeconds) {
 		this.speed = speed;
+	}
+	
+	public void setLevel(int level) {
+		this.level = level;
+		this.health = (int)(this.health * Math.pow((double)this.levelHealthBonus, (double)level));
+		this.iniHealth = this.health;
+	}
+	
+	public int getLevel() {
+		return level;
 	}
 	
 	public int getValue() {

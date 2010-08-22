@@ -10,17 +10,20 @@ import com.game.towerdefense.creeps.*;
 public class WaveManager {
 
 	private List<Wave> waveList = new LinkedList<Wave>();
-	private int waveNumber = 0;
+	private int waveNumber = 1;
+	private int waveAmount = 0;
 	private int waveDelay = 20000; // in milliseconds
 	private long lastRelease;
 
 	void addWave(Wave w) {
 		waveList.add(w);
-		waveNumber++;
+		waveAmount++;
 	}
-
+	
 	Wave nextWave() {
 		waveList.remove(0);
+		waveAmount--;
+		waveNumber++;
 		return waveList.get(0);
 	}
 
@@ -29,13 +32,16 @@ public class WaveManager {
 	}
 
 	Wave getCurrentWave() {
-		Wave currentWave = waveList.get(0);
-		if (currentWave.hasCreeps())
-			lastRelease = System.currentTimeMillis();
-		else if (lastRelease+waveDelay < System.currentTimeMillis())
+		if (!waveList.isEmpty()) {
+			Wave currentWave = waveList.get(0);
+			if (currentWave.hasCreeps())
+				lastRelease = System.currentTimeMillis();
+			else if (lastRelease + waveDelay < System.currentTimeMillis())
 				currentWave = nextWave();
 
-		return currentWave;
+			return currentWave;
+		}
+		return null;
 	}
 
 }

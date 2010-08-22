@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:background="@drawable/background">
 
 	<com.game.towerdefense.TowerDefenseView
 		android:id="@+id/tower_defense" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" tileSize="24" />
+		android:layout_height="fill_parent" tileSize="24" android:textSize="12sp" />
 
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
@@ -17,4 +17,4 @@
 			android:gravity="top" android:textColor="#ffff8888"
 			android:textSize="14sp" />
 	</RelativeLayout>
-</FrameLayout>
+</RelativeLayout>
