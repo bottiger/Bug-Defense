@@ -6,7 +6,7 @@ public class TileMap {
 
 	static private HashMap<Integer, Tile> tileList = new HashMap<Integer, Tile>();
 	
-	static Tile getTile(int x, int y, float tileSize) {
+	public static Tile getTile(int x, int y) {
 		int lookupConstant = 10000;
 		Tile tile = tileList.get(new Integer(x*lookupConstant+y));
 		if (tile == null) {
@@ -17,7 +17,12 @@ public class TileMap {
 		return tile;
 	}
 	
-//	static private String coordinateToString(int x, int y) {
-//		return x + "+" + y;
-//	}
+	//FIXME this method should be removed
+	public static Tile getTile(int x, int y, float tileSize) {
+		return getTile(x, y);
+	}
+	
+	public static void clearTiles() {
+		tileList = new HashMap<Integer, Tile>();
+	}
 }

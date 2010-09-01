@@ -1,4 +1,9 @@
-package com.game.towerdefense;
+package com.game.towerdefense.ui;
+
+import com.game.towerdefense.Color;
+import com.game.towerdefense.Tile;
+import com.game.towerdefense.TileMap;
+import com.game.towerdefense.TileView;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

@@ -2,8 +2,10 @@ package com.game.towerdefense;
 
 import com.game.towerdefense.TowerDefenseView.TowerDefenseThread;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Debug;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +38,9 @@ public class TowerDefense extends Activity {
 
 	/** A handle to the View in which the game is running. */
 	private TowerDefenseView mTowerDefenseView;
+	
+	/** Prevent the screen from dimming */
+	private PowerManager.WakeLock wl;  
 
 	/**
 	 * Invoked during init to give the Activity a chance to set up its Menu.
@@ -111,6 +116,9 @@ public class TowerDefense extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//Debug.startMethodTracing("scores");
+		
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);  
+        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen"); 
 
 		// turn off the window's title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -145,8 +153,17 @@ public class TowerDefense extends Activity {
 	protected void onPause() {
 		//Debug.stopMethodTracing();
 		super.onPause();
+		wl.release();
 		mTowerDefenseView.getThread().pause(); // pause game when Activity
 												// pauses
+	}
+	
+	/**
+	 * 
+	 */
+	protected void onResume() {
+		super.onResume();
+		wl.acquire();  
 	}
 
 	/**

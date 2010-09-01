@@ -2,25 +2,25 @@ package com.game.towerdefense;
 
 public class Bank {
 
-	private int money;
+	private static int money = 0;
 	
 	public Bank(int amount) {
-		this.money = amount;
+		money = amount;
 	}
 	
-	void setAmount(int amount) {
-		this.money = amount;
+	static void setAmount(int amount) {
+		money = amount;
 	}
 	
-	int getAmount() {
-		return this.money;
+	public static int getAmount() {
+		return money;
 	}
 	
-	void decreaseAmount(int amount) {
-		this.money -= amount;
+	static  void decreaseAmount(int amount) {
+		money -= amount;
 	}
 	
-	void increaseMoney(int amount) {
-		this.money += amount;
+	static  void increaseMoney(int amount) {
+		money += amount;
 	}
 }

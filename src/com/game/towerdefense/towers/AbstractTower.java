@@ -65,18 +65,21 @@ public abstract class AbstractTower implements Tower {
 		}
 	}
 
-	public void shoot(ArrayList<Creep> creeps) {
+	public Shot shoot(ArrayList<Creep> creeps) {
+		Shot shot = null;
 		if (cool()) {
 			Creep target = findTarget(creeps);
 			if (target != null)  {
-				target.damage(damage, penetration);
+				//target.damage(damage, penetration);
+				shot = new Shot(this, target);
 				cooldown = delay;
-				if (target.getHealth() <= 0) {
+				if (shot.isFinalShot()) {
 					this.addExperience(lastTarget.getValue());
 					lastTarget = null;
 				}
 			}
 		}
+		return shot;
 	}
 
 	public void setRange(int range) {

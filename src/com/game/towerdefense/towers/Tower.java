@@ -34,7 +34,7 @@ public interface Tower {
 	
 	public int getRightBound();
 	
-	public void shoot(ArrayList<Creep> creep);
+	public Shot shoot(ArrayList<Creep> creep);
 
 	void setImage(Drawable img);
 

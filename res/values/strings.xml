@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="app_name">Tower Defense</string>
+	<string name="app_name">Bug Defense DEV RELEASE</string>
 	<string name="td_intro_text">Welcome to my Tower Defense game</string>
 	<string name="menu_start">Start</string>
 	<string name="menu_stop">Stop</string>

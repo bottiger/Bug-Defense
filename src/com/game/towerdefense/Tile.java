@@ -17,7 +17,7 @@ public class Tile {
 
 	// private int tileSize;
 	private boolean blocked = false;
-	private Tower blockedBy;
+	private Tower blockedBy = null;;
 
 	public Tile(int x, int y) {
 		this.x = x;
@@ -49,5 +49,9 @@ public class Tile {
 	public void block(Tower tower) {
 		this.blocked = true;
 		this.blockedBy = tower;
+	}
+	
+	public void block() {
+		this.blocked = true;
 	}
 }

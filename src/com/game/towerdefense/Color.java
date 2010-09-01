@@ -4,11 +4,11 @@ import android.graphics.Paint;
 
 public class Color {
 	
-	static Paint white() {
+	public static Paint white() {
 		return newPaint(255, 255, 255, 255);
 	}
 	
-	static Paint black() {
+	public static Paint black() {
 		return newPaint(255, 0, 0, 0);
 	}
 	
@@ -25,15 +25,15 @@ public class Color {
 		return newPaint(139, 69, 19, 0, (int)pathWidth);
 	}
 	
-	static Paint canBuildColor() {
+	public static Paint canBuildColor() {
 		return newPaint(50, 0, 0, 155);
 	}
 	
-	static Paint canNotBuildColor() {
+	public static Paint canNotBuildColor() {
 		return newPaint(50, 155, 0, 0);
 	}
 	
-	static Paint towerRangeColor() {
+	public static Paint towerRangeColor() {
 		return newPaint(50, 0, 155, 0);
 	}
 	

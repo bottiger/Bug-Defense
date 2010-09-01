@@ -43,5 +43,9 @@ public class WaveManager {
 		}
 		return null;
 	}
+	
+	int getWaveNumber() {
+		return this.waveNumber;
+	}
 
 }

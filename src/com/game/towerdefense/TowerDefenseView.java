@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 import com.game.towerdefense.creeps.*;
 import com.game.towerdefense.towers.*;
+import com.game.towerdefense.ui.PlaceableTower;
+import com.game.towerdefense.ui.UIController;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -39,7 +41,7 @@ import android.widget.TextView;
  * ship, and does an invalidate() to prompt another draw() as soon as possible
  * by the system.
  */
-class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
+public class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 
 	class TowerDefenseThread extends Thread {
 
@@ -74,6 +76,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		public static final int TOTAL_LIVES = 20; // The number of creeps which
 		// can slips through
+		public static final int INITIAL_MONEY = 50;
 
 		/*
 		 * UI constants (i.e. the speed & fuel bars)
@@ -157,6 +160,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private ArrayList<Creep> mPendingCreepList = new ArrayList<Creep>();
 		private ArrayList<Creep> mCreepList = new ArrayList<Creep>();
 		private ArrayList<Tower> mTowerList = new ArrayList<Tower>();
+		private ArrayList<Shot> mShotList = new ArrayList<Shot>();
 		private Route route = null;
 		private WaveManager mWaveManager;
 		private TileMap mTileMap = new TileMap();
@@ -174,14 +178,16 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		private int mWidth;
 		private int mHeight;
+		
+		/**
+		 * 
+		 */
+		private int pathWidth;
 
 		/**
 		 * 
 		 */
 		private PlaceableTower mPlaceableTower;
-
-		/** The amount of lives the player has */
-		private int mLivesLeft = TOTAL_LIVES;
 
 		/** Used to figure out elapsed time between frames */
 		private long mLastTime;
@@ -223,16 +229,11 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		 */
 		public final float mFPSGoal = 30;
 		public long mMoveDelay;
-
+		
 		/**
-		 * Lives
+		 * Game State
 		 */
-		private int mLives = TOTAL_LIVES;
-
-		/**
-		 * Lives
-		 */
-		private Bank mMoney = new Bank(40);
+		private GameState mGameState = new GameState();
 
 		/**
 		 * Create a simple handler that we can use to cause animation to happen.
@@ -281,10 +282,6 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			mBackgroundImage = BitmapFactory.decodeResource(res,
 					R.drawable.background);
 
-			// Use the regular lander image as the model size for all sprites
-			// mLanderWidth = mLanderImage.getIntrinsicWidth();
-			// mLanderHeight = mLanderImage.getIntrinsicHeight();
-
 			mScratchRect = new RectF(0, 0, 0, 0);
 
 			// Initialize paints for the game
@@ -304,11 +301,20 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			synchronized (mSurfaceHolder) {
 				TowerDefenseView mTowerDefenseView = (TowerDefenseView) findViewById(R.id.tower_defense);
 
+				mPendingCreepList = new ArrayList<Creep>();
+				mCreepList = new ArrayList<Creep>();
+				mTowerList = new ArrayList<Tower>();
+				mShotList = new ArrayList<Shot>();
+				TileMap.clearTiles();
+
 				route = GameGenerator.genericRoute();
 				mTowerManager = new TowerManager(mTileSize);
-
 				mWaveManager = GameGenerator.defaultWaves(mTowerDefenseView);
 
+				GameState.setBank(new Bank(INITIAL_MONEY));
+				GameState.setLives(TOTAL_LIVES);
+				
+				setState(STATE_RUNNING);
 			}
 		}
 
@@ -387,8 +393,9 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		public Bundle saveState(Bundle map) {
 			synchronized (mSurfaceHolder) {
 				if (map != null) {
-					map.putInt("bank", mMoney.getAmount());
-					map.putInt("lives", mLives);
+					GameState.getBank();
+					map.putInt("bank", Bank.getAmount()); // mMoney.getAmount()
+					map.putInt("lives", GameState.getLives()); // mLives
 				}
 			}
 			return map;
@@ -478,7 +485,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 					}
 
 					if (mMode == STATE_LOSE)
-						mLivesLeft = TOTAL_LIVES;
+						GameState.setLives(TOTAL_LIVES); // mLivesLeft = TOTAL_LIVES;
 
 					Message msg = mHandler.obtainMessage();
 					Bundle b = new Bundle();
@@ -561,8 +568,15 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			// Draw the background image. Operations on the Canvas accumulate
 			// so this is like clearing the screen.
 			canvas.drawBitmap(mBackgroundImage, 0, 0, null);
+			
+			mWidth = mTowerDefenseView.getWidth();
+			mHeight = mTowerDefenseView.getHeight();
 
-			drawMenuBox(mTowerDefenseView, canvas);
+			mBarHeight = mTowerDefenseView.getPercentOfHeight(12);
+
+			Drawable[] icons = {mTowerImage, mTower2Image, mTower3Image};
+			UIController.drawMenuBox(mTowerDefenseView, canvas, icons);
+			UIController.drawTopBox(mTowerDefenseView, canvas);
 
 			// Draw path
 			Tile startPoint = null;
@@ -574,7 +588,7 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			ArrayList<Tile> routeCheckPoints = route.getCheckPoints();
 
 			mLinePaint = Color
-					.pathColor(mTowerDefenseView.getPercentOfWidth(7));
+					.pathColor(route.getWidth()); // getPercentOfHeight(5)
 			// Draw Route
 			for (Tile c : routeCheckPoints) {
 				startPoint = c;
@@ -614,6 +628,13 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			}
 
 			canvas.save();
+
+			// draw shots
+			for (Shot shot : mShotList) {
+				float x = shot.getPosition().x;
+				float y = shot.getPosition().y;
+				canvas.drawCircle(x, y, 2, Color.black());
+			}
 
 			// Draw creeps
 			for (Creep creep : mCreepList) {
@@ -658,56 +679,6 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 			// TODO see LunarViewer
 		}
 
-		private void drawMenuBox(TowerDefenseView view, Canvas canvas) {
-
-			mWidth = view.getWidth();
-			mHeight = view.getHeight();
-
-			mBarHeight = view.getPercentOfHeight(12);
-
-			int imageSize = view.getPercentOfHeight(5); // 6
-			int bottomPadding = view.getPercentOfHeight(7);
-			int textPadding = view.getPercentOfHeight(3);
-
-			Paint backgroundColor = Color.black();
-			Paint foregroundColor = Color.white();
-
-			canvas.drawRect(0, mHeight, mWidth, mHeight - mBarHeight,
-					backgroundColor);
-
-			mRect1 = new Rect(mWidth / 8 - imageSize, mHeight - bottomPadding
-					- imageSize, mWidth / 8 + imageSize, mHeight
-					- bottomPadding + imageSize);
-			mRect2 = new Rect(3 * mWidth / 8 - imageSize, mHeight
-					- bottomPadding - imageSize, 3 * mWidth / 8 + imageSize,
-					mHeight - bottomPadding + imageSize);
-			mRect3 = new Rect(5 * mWidth / 8 - imageSize, mHeight
-					- bottomPadding - imageSize, 5 * mWidth / 8 + imageSize,
-					mHeight - bottomPadding + imageSize);
-
-			drawTower(canvas, mTowerImage, foregroundColor, mRect1);
-			drawTower(canvas, mTower2Image, foregroundColor, mRect2);
-			drawTower(canvas, mTower3Image, foregroundColor, mRect3);
-
-			canvas.drawText("Escaped creeps: " + mLives, 6 * mWidth / 8,
-					mHeight - textPadding, foregroundColor);
-			canvas.drawText("Bank: " + mMoney.getAmount(), 6 * mWidth / 8,
-					mHeight - 2 * textPadding, foregroundColor);
-			canvas.drawText("FPS: " + mFPS, 6 * mWidth / 8, mHeight - 3
-					* textPadding, foregroundColor);
-		}
-
-		private void drawTower(Canvas canvas, Drawable image, Paint color,
-				Rect r) {
-			int imageSize = 20;
-
-			// image.setBounds(x-imageSize, y-imageSize, x+imageSize,
-			// y+imageSize);
-			image.setBounds(r);
-			image.draw(canvas);
-			canvas.drawText("Price: " + 10, r.centerX() - 10, r.centerY()
-					+ imageSize + 5, color);
-		}
 
 		/**
 		 * Figures the lander state (x, y, fuel, ...) based on the passage of
@@ -717,10 +688,18 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 		private void updateGameState() {
 
 			long now = System.currentTimeMillis();
+
 			Wave wave = mWaveManager.getCurrentWave();
+			route.setWidth(getPercentOfHeight(5)); // width
+
+			if (GameState.getLives() == 20) {
+				// StatReporter.sendEmail(getContext(),
+				// mWaveManager.getWaveNumber());
+				// mLives = -1;
+			}
 
 			if (wave == null)
-				System.exit(-1);
+				return;
 
 			// Do nothing if mLastTime is in the future.
 			// This allows the game-start to delay the start of the physics
@@ -739,9 +718,10 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 				boolean escaped = creep.isLastPos();
 				if (escaped || creep.getHealth() <= 0) {
 					if (escaped) {
-						mLives -= 1;
+						GameState.decreaseLives();
 					} else {
-						mMoney.increaseMoney(creep.getValue());
+						GameState.getBank();
+						Bank.increaseMoney(creep.getValue());
 					}
 					i.remove();
 				} else {
@@ -751,7 +731,19 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 
 			// shoot
 			for (Tower tower : mTowerManager.towers()) {
-				tower.shoot(mCreepList);
+				Shot s = tower.shoot(mCreepList);
+				if (s != null)
+					mShotList.add(s);
+			}
+			
+			// move shots
+			Iterator<Shot> itr = mShotList.iterator();
+			while (itr.hasNext()) {
+				Shot shot = itr.next();
+				shot.move();
+				if (shot.isHit()) {
+					itr.remove();
+				}
 			}
 
 			double elapsed = (now - mLastTime) / 1000.0;
@@ -772,17 +764,17 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 				if (y > mHeight - mBarHeight) {
 
 					// define button rectangles
-					if (mRect1.contains((int) x, (int) y)) {
+					if (UIController.getTowerButton(0).contains((int) x, (int) y)) {
 						mSelectedTower = GENERIC_TOWER;
 						return true;
 					}
 
-					if (mRect2.contains((int) x, (int) y)) {
+					if (UIController.getTowerButton(1).contains((int) x, (int) y)) {
 						mSelectedTower = HEAVY_TOWER;
 						return true;
 					}
 
-					if (mRect3.contains((int) x, (int) y)) {
+					if (UIController.getTowerButton(2).contains((int) x, (int) y)) {
 						mSelectedTower = SNIPER_TOWER;
 						return true;
 					}
@@ -831,17 +823,17 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 					switch (mSelectedTower) {
 					case GENERIC_TOWER:
 						mTowerManager.createGenericTower(towerPlace,
-								mTowerImage, mMoney);
+								mTowerImage, GameState.getBank());
 						break;
 
 					case HEAVY_TOWER:
 						mTowerManager.createHeavyTower(towerPlace,
-								mTower2Image, mMoney);
+								mTower2Image, GameState.getBank());
 						break;
 
 					case SNIPER_TOWER:
 						mTowerManager.createSniperTower(towerPlace,
-								mTower3Image, mMoney);
+								mTower3Image, GameState.getBank());
 						break;
 					}
 
@@ -903,14 +895,14 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 	/**
 	 * @return X percent of the height
 	 */
-	public int getPercentOfHeight(int percent) {
+	public static int getPercentOfHeight(int percent) {
 		return (int) (TileView.mHeight * ((double) percent / 100));
 	}
 
 	/**
 	 * @return X percent of the width
 	 */
-	public int getPercentOfWidth(int percent) {
+	public static int getPercentOfWidth(int percent) {
 		return (int) (TileView.mWidth * ((double) percent / 100));
 	}
 
@@ -978,8 +970,12 @@ class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
 	public void surfaceCreated(SurfaceHolder holder) {
 		// start the thread here so that we don't busy-wait in run()
 		// waiting for the surface to be created
-		thread.setRunning(true);
-		thread.start();
+		try {
+			thread.setRunning(true);
+			thread.start();
+		} catch (IllegalThreadStateException e) {
+			return;
+		}
 	}
 
 	/*
