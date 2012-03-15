@@ -16,11 +16,11 @@ public class Bank {
 		return money;
 	}
 	
-	static  void decreaseAmount(int amount) {
+	public static void decreaseAmount(int amount) {
 		money -= amount;
 	}
 	
-	static  void increaseMoney(int amount) {
+	public static void increaseMoney(int amount) {
 		money += amount;
 	}
 }

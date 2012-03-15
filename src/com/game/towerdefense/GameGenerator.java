@@ -13,11 +13,11 @@ public class GameGenerator {
 		checkPoints.add(new Tile(100, 100));
 		checkPoints.add(new Tile(100, 350));
 		checkPoints.add(new Tile(180, 350));
-		checkPoints.add(new Tile(180, 200));
-		checkPoints.add(new Tile(300, 200));
+		checkPoints.add(new Tile(180, 230));
+		checkPoints.add(new Tile(270, 230));
 
 		Tile creepStart = new Tile(0, 100);
-		Tile creepEnd = new Tile(300, 400);
+		Tile creepEnd = new Tile(270, 460);
 
 		return new Route(creepStart, creepEnd, TileView.mTileSize, checkPoints);
 	}

@@ -18,6 +18,7 @@ public abstract class AbstractCreep implements Creep {
 	private final int value;
 
 	private int health;
+	private int preDamageHealth;
 	private int speed;
 	private Route route;
 	private int level = 1;
@@ -36,6 +37,8 @@ public abstract class AbstractCreep implements Creep {
 		this.health = health;
 		this.route = route;
 		this.lastPositionIndex = route.length()-1;
+		
+		this.preDamageHealth = health;
 
 	}
 	
@@ -47,6 +50,8 @@ public abstract class AbstractCreep implements Creep {
 		this.value = value;
 		this.speed = speed;
 		this.health = health;
+		
+		this.preDamageHealth = health;
 	}
 
 	public boolean isLastPos() {
@@ -92,6 +97,10 @@ public abstract class AbstractCreep implements Creep {
 		return health;
 	}
 	
+	public int getPreDamageHealth() {
+		return preDamageHealth;
+	}
+	
 	public int getHealthPercentage() {
 		return (health * 100) / iniHealth;
 	}
@@ -100,8 +109,12 @@ public abstract class AbstractCreep implements Creep {
 		this.health = healt;
 	}
 	
+	public void preDamage(int damage, int penetration) {
+		preDamageHealth -= this.calcDamage(damage, penetration);
+	}
+	
 	public void damage(int damage, int penetration) {
-		health -= damage;
+		health -= this.calcDamage(damage, penetration);
 	}
 
 	public int x() {
@@ -146,15 +159,17 @@ public abstract class AbstractCreep implements Creep {
 	
 	public abstract int getImageID();
 
-	@Override
 	public Drawable getImage() {
 		return image;
 	}
 
-	@Override
 	public void setImage(Drawable img) {
 		image = img;
 
+	}
+	
+	private int calcDamage(int damage, int penetration) {
+		return damage;
 	}
 
 }

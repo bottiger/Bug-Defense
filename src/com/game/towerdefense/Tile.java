@@ -45,6 +45,14 @@ public class Tile {
 	public boolean isBlocked() {
 		return this.blocked;
 	}
+	
+	public boolean hasTower() {
+		return (this.blocked == true) && (this.blockedBy != null);
+	}
+	
+	public Tower getTower() {
+		return this.blockedBy;
+	}
 
 	public void block(Tower tower) {
 		this.blocked = true;

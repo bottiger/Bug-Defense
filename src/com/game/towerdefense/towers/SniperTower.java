@@ -9,24 +9,27 @@ import com.game.towerdefense.R;
 
 public class SniperTower extends AbstractTower {
 	
+	private static final int DAMAGE = 10;
+	private static final int DELAY = 20;
+	private static final int RANGE = 200;
+	private static final int PENETRATION = 40;
+	private static final int PRICE = 15;
+	
 	private Drawable image;
 	
 	// position, damage, delay, range, penetration, price
 	public SniperTower(Tile position) {
-		super(position, 10, 30, 200, 40, 15);
+		super(position, DAMAGE, DELAY, RANGE, PENETRATION, PRICE);
 	}
 	
-	@Override
 	public int getImageID() {
 		return R.drawable.creeps;
 	}
 
-	@Override
 	public Drawable getImage() {
 		return image;
 	}
 
-	@Override
 	public void setImage(Drawable img) {
 		image = img;
 		

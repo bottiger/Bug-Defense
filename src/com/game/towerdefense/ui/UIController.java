@@ -4,7 +4,9 @@ import com.game.towerdefense.Bank;
 import com.game.towerdefense.Color;
 import com.game.towerdefense.GameState;
 import com.game.towerdefense.R;
+import com.game.towerdefense.TileView;
 import com.game.towerdefense.TowerDefenseView;
+import com.game.towerdefense.towers.Tower;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -117,6 +119,12 @@ public class UIController {
 	
 	private static void addTopBarPadding() {
 		rightMarginTopBar -= itemPadding;
+	}
+	
+	public static void drawTowerRange(Canvas canvas, Tower tower) {
+		canvas.drawCircle(tower.getPosition().getPixel().x, tower.getPosition()
+				.getPixel().y, tower.getRange() * TileView.mTileSize, Color
+				.towerRangeColor());
 	}
 
 }

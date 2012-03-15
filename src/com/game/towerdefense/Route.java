@@ -7,7 +7,7 @@ public class Route {
 	private Tile start;
 	private Tile end;
 	private float tileSize;
-	private float tileWidth = 1;
+	private float pathWidthInTiles = 1;
 	
 	private ArrayList<Tile> checkPoints = new ArrayList<Tile>();
 
@@ -66,14 +66,14 @@ public class Route {
 	}
 	
 	public float getWidth() {
-		return tileWidth;
+		return pathWidthInTiles;
 	}
 	
-	public void setWidth(float pixelWidth) {
-		int tileWidthNew = (int)(pixelWidth / TileView.mTileSize);
-		if (tileWidthNew != tileWidth) {
+	public void setWidth(float pathWidthInPixels) {
+		int pathWidthInTilesNew = (int)(pathWidthInPixels / TileView.mTileSize);
+		if (pathWidthInTilesNew != pathWidthInTiles) {
+			pathWidthInTiles = pathWidthInTilesNew;
 			this.blockRoad();
-			tileWidth = tileWidthNew;
 		}
 	}
 
@@ -101,8 +101,8 @@ public class Route {
 	// Lazy path blocker
 	public void blockRoad() {
 		for (Tile t : path) {
-			for (int i = t.x-(int)tileWidth; i <= t.x+tileWidth; i++) {
-				for (int j = t.y-(int)tileWidth; j <= t.y+tileWidth; j++) {
+			for (int i = t.x-(int)(pathWidthInTiles/2); i < t.x+(pathWidthInTiles/2); i++) {
+				for (int j = t.y-(int)(pathWidthInTiles/2); j < t.y+(pathWidthInTiles/2); j++) {
 					TileMap.getTile(i, j).block();
 				}
 			}

@@ -2,6 +2,7 @@ package com.game.towerdefense.towers;
 
 import java.util.ArrayList;
 
+import com.game.towerdefense.Bank;
 import com.game.towerdefense.Tile;
 import com.game.towerdefense.TileView;
 import com.game.towerdefense.creeps.Creep;
@@ -10,7 +11,8 @@ public abstract class AbstractTower implements Tower {
 
 	private final int IMAGE_SIZE = 24;
 	private final Tile position;
-	
+	private final int MAX_LEVEL = 4;
+
 	private int size = 10;
 
 	private int damage;
@@ -18,13 +20,14 @@ public abstract class AbstractTower implements Tower {
 	private int penetration;
 	private int delay;
 	private int price;
-	
+
 	private int experience = 0;
+	private int level = 0;
 
 	private int cooldown = 0;
 
 	private Creep lastTarget;
-	
+
 	public AbstractTower(Tile position, int damage, int delay, int range,
 			int penetration, int price) {
 		this.position = position;
@@ -38,7 +41,7 @@ public abstract class AbstractTower implements Tower {
 	public int getRange() {
 		return range;
 	}
-	
+
 	public int getPrice() {
 		return price;
 	}
@@ -50,14 +53,20 @@ public abstract class AbstractTower implements Tower {
 	}
 
 	public Creep findTarget(ArrayList<Creep> creeps) {
-		if ((lastTarget != null) && inRange(lastTarget.getPosition().x, lastTarget.getPosition().y))
+		if ((lastTarget != null)
+				&& inRange(lastTarget.getPosition().x,
+						lastTarget.getPosition().y)
+				&& (lastTarget.getPreDamageHealth() > 0))
 			return lastTarget;
 		else {
 			Creep bestTarget = null;
 			for (Creep c : creeps) {
 				if (inRange(c.getPosition().x, c.getPosition().y)) {
 					lastTarget = c;
-					if (bestTarget == null || lastTarget.getHealth() < bestTarget.getHealth())
+					if (bestTarget == null
+							|| ((lastTarget.getHealth() < bestTarget
+									.getHealth()) && (lastTarget
+									.getPreDamageHealth() > 0)))
 						bestTarget = lastTarget;
 				}
 			}
@@ -69,8 +78,8 @@ public abstract class AbstractTower implements Tower {
 		Shot shot = null;
 		if (cool()) {
 			Creep target = findTarget(creeps);
-			if (target != null)  {
-				//target.damage(damage, penetration);
+			if (target != null) {
+				// target.damage(damage, penetration);
 				shot = new Shot(this, target);
 				cooldown = delay;
 				if (shot.isFinalShot()) {
@@ -105,23 +114,23 @@ public abstract class AbstractTower implements Tower {
 	public Tile getPosition() {
 		return position;
 	}
-	
+
 	public int getLowerBound() {
-		return (int)(this.position.getPixel().y + size*TileView.mTileSize);
+		return (int) (this.position.getPixel().y + size * TileView.mTileSize);
 	}
-	
+
 	public int getUpperBound() {
-		return (int)(this.position.getPixel().y - size*TileView.mTileSize);
+		return (int) (this.position.getPixel().y - size * TileView.mTileSize);
 	}
-	
+
 	public int getLeftBound() {
-		return (int)(this.position.getPixel().x - size*TileView.mTileSize);
+		return (int) (this.position.getPixel().x - size * TileView.mTileSize);
 	}
-	
+
 	public int getRightBound() {
-		return (int)(this.position.getPixel().x + size*TileView.mTileSize);
+		return (int) (this.position.getPixel().x + size * TileView.mTileSize);
 	}
-	
+
 	public int getSize() {
 		return size;
 	}
@@ -133,13 +142,26 @@ public abstract class AbstractTower implements Tower {
 		} else
 			return true;
 	}
-	
+
 	public void addExperience(int xp) {
 		this.experience += xp;
 	}
-	
+
 	public int getExperience() {
 		return this.experience;
+	}
+
+	public boolean upgrade() {
+		if (level <= MAX_LEVEL && Bank.getAmount() > price) {
+			level++;
+			range *= 1.2f;
+			damage *= 1.5f;
+			delay *= 0.8f;
+			Bank.decreaseAmount(price);
+			return true;
+		}
+		
+		return false;
 	}
 
 }

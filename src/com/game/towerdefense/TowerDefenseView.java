@@ -7,6 +7,7 @@ import com.game.towerdefense.creeps.*;
 import com.game.towerdefense.towers.*;
 import com.game.towerdefense.ui.PlaceableTower;
 import com.game.towerdefense.ui.UIController;
+import com.game.towerdefense.ui.UpgradeDialog;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,13 +24,16 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.GestureDetector.*;
 import android.widget.TextView;
 
 /**
@@ -41,7 +45,8 @@ import android.widget.TextView;
  * ship, and does an invalidate() to prompt another draw() as soon as possible
  * by the system.
  */
-public class TowerDefenseView extends TileView implements SurfaceHolder.Callback {
+public class TowerDefenseView extends TileView implements
+		SurfaceHolder.Callback, OnGestureListener {
 
 	class TowerDefenseThread extends Thread {
 
@@ -132,9 +137,14 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 		private int mDifficulty;
 
 		/**
-		 * Currently selected tower
+		 * Currently selected tower to build
 		 */
-		private int mSelectedTower;
+		private int mBuildTower;
+
+		/**
+		 * Currently selected tower to view
+		 */
+		private Tower mSelectedTower;
 
 		/**
 		 * Top bar height
@@ -178,7 +188,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 		 */
 		private int mWidth;
 		private int mHeight;
-		
+
 		/**
 		 * 
 		 */
@@ -229,7 +239,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 		 */
 		public final float mFPSGoal = 30;
 		public long mMoveDelay;
-		
+
 		/**
 		 * Game State
 		 */
@@ -313,7 +323,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 
 				GameState.setBank(new Bank(INITIAL_MONEY));
 				GameState.setLives(TOTAL_LIVES);
-				
+
 				setState(STATE_RUNNING);
 			}
 		}
@@ -485,7 +495,8 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 					}
 
 					if (mMode == STATE_LOSE)
-						GameState.setLives(TOTAL_LIVES); // mLivesLeft = TOTAL_LIVES;
+						GameState.setLives(TOTAL_LIVES); // mLivesLeft =
+					// TOTAL_LIVES;
 
 					Message msg = mHandler.obtainMessage();
 					Bundle b = new Bundle();
@@ -568,13 +579,13 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 			// Draw the background image. Operations on the Canvas accumulate
 			// so this is like clearing the screen.
 			canvas.drawBitmap(mBackgroundImage, 0, 0, null);
-			
+
 			mWidth = mTowerDefenseView.getWidth();
 			mHeight = mTowerDefenseView.getHeight();
 
 			mBarHeight = mTowerDefenseView.getPercentOfHeight(12);
 
-			Drawable[] icons = {mTowerImage, mTower2Image, mTower3Image};
+			Drawable[] icons = { mTowerImage, mTower2Image, mTower3Image };
 			UIController.drawMenuBox(mTowerDefenseView, canvas, icons);
 			UIController.drawTopBox(mTowerDefenseView, canvas);
 
@@ -587,8 +598,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 
 			ArrayList<Tile> routeCheckPoints = route.getCheckPoints();
 
-			mLinePaint = Color
-					.pathColor(route.getWidth()); // getPercentOfHeight(5)
+			mLinePaint = Color.pathColor(route.getWidth()); // getPercentOfHeight(5)
 			// Draw Route
 			for (Tile c : routeCheckPoints) {
 				startPoint = c;
@@ -615,16 +625,19 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 
 			// Draw towers
 			for (Tower tower : mTowerManager.towers()) {
-				Drawable creepImg = tower.getImage();
+				Drawable towerImg = tower.getImage();
 
 				int leftBound = tower.getLeftBound();
 				int upperBound = tower.getUpperBound();
 				int rightBound = tower.getRightBound();
 				int lowerBound = tower.getLowerBound();
 
-				creepImg.setBounds(leftBound, upperBound, rightBound,
+				towerImg.setBounds(leftBound, upperBound, rightBound,
 						lowerBound);
-				creepImg.draw(canvas);
+				towerImg.draw(canvas);
+				if (tower == mSelectedTower) {
+					UIController.drawTowerRange(canvas, tower);
+				}
 			}
 
 			canvas.save();
@@ -679,7 +692,6 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 			// TODO see LunarViewer
 		}
 
-
 		/**
 		 * Figures the lander state (x, y, fuel, ...) based on the passage of
 		 * realtime. Does not invalidate(). Called at the start of draw().
@@ -692,10 +704,11 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 			Wave wave = mWaveManager.getCurrentWave();
 			route.setWidth(getPercentOfHeight(5)); // width
 
-			if (GameState.getLives() == 20) {
+			if (GameState.getLives() <= 0) {
 				// StatReporter.sendEmail(getContext(),
 				// mWaveManager.getWaveNumber());
 				// mLives = -1;
+				this.setState(STATE_LOSE);
 			}
 
 			if (wave == null)
@@ -735,7 +748,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 				if (s != null)
 					mShotList.add(s);
 			}
-			
+
 			// move shots
 			Iterator<Shot> itr = mShotList.iterator();
 			while (itr.hasNext()) {
@@ -764,22 +777,26 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 				if (y > mHeight - mBarHeight) {
 
 					// define button rectangles
-					if (UIController.getTowerButton(0).contains((int) x, (int) y)) {
-						mSelectedTower = GENERIC_TOWER;
+					if (UIController.getTowerButton(0).contains((int) x,
+							(int) y)) {
+						mBuildTower = GENERIC_TOWER;
 						return true;
 					}
 
-					if (UIController.getTowerButton(1).contains((int) x, (int) y)) {
-						mSelectedTower = HEAVY_TOWER;
+					if (UIController.getTowerButton(1).contains((int) x,
+							(int) y)) {
+						mBuildTower = HEAVY_TOWER;
 						return true;
 					}
 
-					if (UIController.getTowerButton(2).contains((int) x, (int) y)) {
-						mSelectedTower = SNIPER_TOWER;
+					if (UIController.getTowerButton(2).contains((int) x,
+							(int) y)) {
+						mBuildTower = SNIPER_TOWER;
 						return true;
 					}
 				} else {
-					mSelectedTower = 0;
+					mBuildTower = 0;
+					mSelectedTower = null;
 				}
 			}
 
@@ -792,7 +809,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 
 					Tower t;
 
-					switch (mSelectedTower) {
+					switch (mBuildTower) {
 					case GENERIC_TOWER:
 						t = new GenericTower(towerPlace);
 						mPlaceableTower = new PlaceableTower(towerPlace, t
@@ -820,7 +837,7 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 
 					mPlaceableTower = null;
 
-					switch (mSelectedTower) {
+					switch (mBuildTower) {
 					case GENERIC_TOWER:
 						mTowerManager.createGenericTower(towerPlace,
 								mTowerImage, GameState.getBank());
@@ -836,6 +853,8 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 								mTower3Image, GameState.getBank());
 						break;
 					}
+					
+					mBuildTower = 0;
 
 					return true;
 				}
@@ -862,6 +881,22 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 			return mTileMap.getTile(x, y, mTileSize);
 		}
 
+		public void onLongPress(MotionEvent event) {
+			float x = event.getX();
+			float y = event.getY();
+
+			// if (Pixel.toTile(x, y).hasTower()) {
+			// if (Pixel.toTile(x, y).hasTower()) {
+			// Tower tower = Pixel.toTile(x, y).getTower();
+			// tower.upgrade();
+			Vibrator v = (Vibrator) mContext
+					.getSystemService(Context.VIBRATOR_SERVICE);
+			v.vibrate(300);
+			// }
+			// }
+
+		}
+
 	}
 
 	/** Handle to the application context, used to e.g. fetch Drawables. */
@@ -873,12 +908,18 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 	/** The thread that actually draws the animation */
 	private TowerDefenseThread thread;
 
+	/** */
+	private GestureDetector gestureScanner;
+
 	public TowerDefenseView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		// register our interest in hearing about changes to our surface
 		SurfaceHolder holder = getHolder();
 		holder.addCallback(this);
+		// TODO nothing
+
+		gestureScanner = new GestureDetector(this);
 
 		// create thread only; it's started in surfaceCreated()
 		thread = new TowerDefenseThread(holder, context, new Handler() {
@@ -920,7 +961,10 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		return thread.onTouchEvent(event);
+		if (gestureScanner.onTouchEvent(event))
+			return true;
+		else
+			return thread.onTouchEvent(event);
 	}
 
 	/**
@@ -995,6 +1039,55 @@ public class TowerDefenseView extends TileView implements SurfaceHolder.Callback
 			} catch (InterruptedException e) {
 			}
 		}
+	}
+
+	public boolean onDown(MotionEvent e) {
+		float x = e.getX();
+		float y = e.getY();
+
+		if (Pixel.toTile(x, y).hasTower()) {
+			thread.mSelectedTower = Pixel.toTile(x, y).getTower();
+			return true;
+		} else {
+			thread.mSelectedTower = null;
+		}
+		return false;
+	}
+
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void onLongPress(MotionEvent e) {
+		float x = e.getX();
+		float y = e.getY();
+		if (Pixel.toTile(x, y).hasTower()) {
+			if (Pixel.toTile(x, y).getTower().upgrade()) {
+				UpgradeDialog.open(mContext);
+				//Vibrator v = (Vibrator) mContext
+				//		.getSystemService(Context.VIBRATOR_SERVICE);
+				//v.vibrate(300);
+			}
+		}
+
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

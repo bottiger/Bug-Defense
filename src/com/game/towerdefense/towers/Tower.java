@@ -47,4 +47,6 @@ public interface Tower {
 	public void addExperience(int xp);
 	
 	public int getExperience();
+	
+	public boolean upgrade();
 }

@@ -19,6 +19,8 @@ public class Shot {
 		this.position = shooter.getPosition().getPixel();
 		this.damage = shooter.getDamage();
 		this.penetration = shooter.getPenetration();
+		
+		target.preDamage(this.damage, this.penetration);
 	}
 
 	public void move() {

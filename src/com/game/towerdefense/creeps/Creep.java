@@ -21,9 +21,13 @@ public interface Creep {
 	
 	public int getHealth();
 	
+	public int getPreDamageHealth();
+	
 	public int getHealthPercentage();
 	
 	public void setHealth(int healt);
+	
+	public void preDamage(int damage, int penetration);
 	
 	public void damage(int damage, int penetration);
 	

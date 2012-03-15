@@ -4,6 +4,7 @@ import com.game.towerdefense.Color;
 import com.game.towerdefense.Tile;
 import com.game.towerdefense.TileMap;
 import com.game.towerdefense.TileView;
+import com.game.towerdefense.towers.Tower;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -55,10 +56,11 @@ public class PlaceableTower {
 	}
 
 	public Rect getRect() {
-		return new Rect((int) (position.getPixel().x - size*TileView.mTileSize),
-				(int) (position.getPixel().y - size*TileView.mTileSize),
-				(int) (position.getPixel().x + size*TileView.mTileSize),
-				(int) (position.getPixel().y + size*TileView.mTileSize));
+		return new Rect((int) (position.getPixel().x - size
+				* TileView.mTileSize), (int) (position.getPixel().y - size
+				* TileView.mTileSize), (int) (position.getPixel().x + size
+				* TileView.mTileSize), (int) (position.getPixel().y + size
+				* TileView.mTileSize));
 	}
 
 	public Drawable getImage() {
@@ -70,6 +72,7 @@ public class PlaceableTower {
 		// image.draw(canvas);
 		canvas.drawCircle(x, y, getRange() * TileView.mTileSize, Color
 				.towerRangeColor());
+
 		// canvas.drawRect(getRect(TileView.mTileSize), Color.canBuildColor());
 		drawTiles(canvas);
 	}
